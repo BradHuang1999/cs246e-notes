@@ -277,7 +277,7 @@ When an object is created, there are 4 steps:
 
 1. Space is allocated
 2. (later)
-3. Fields are constructeed in declaration (field constructors called for fields that are objects)
+3. Fields are constructed in declaration (field constructors called for fields that are objects)
 4. Constructor body runs
 
 Field initialization should happen in step 3, but constructor body happens in step 4
@@ -357,11 +357,11 @@ f(Node {4}) // OK
 A method called the **destructor** (dtor) runs automatically
 
 - Built-in dtor: calls dtor on all fields that are objects
-- Object destruction protocol:
+- Object destruction protocol (in reverse declaration order):
     1. Dtor body runs
     2. Fields destructed (dtors called on fields that are objs) in reverse declaration order
     3. (Later)
-    4. Space deallocated
+    4. Space de-allocated
 
 ```C++
 struct Node {
