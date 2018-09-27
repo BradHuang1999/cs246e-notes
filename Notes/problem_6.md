@@ -1,42 +1,54 @@
 [Moves << ](./problem_5.md) | [**Home**](../README.md) | [>> Tampering](./problem_7.md) 
 
-# Problem 6: I want a constant vector
-**2017-09-26**
+# Problem 6: I want a constant Vector
+**2018-09-27**
 
-Say we want to print a vector:
+Say we want to print a `Vector`:
 
 ```C++
 ostream &operator <<(ostream &out, const Vector &v) {
-    for (size_t i = 0; i < v.size(), ++i) {
+    for (size_t i = 0; i < v.size(); ++i) {
         out << v.itemAt(i) << " ";
     }
+    return out;
 }
 ```
 
-WON'T COMPILE!!! (lushman pls)
+This won't compile! \**lushman pls*\*
 
-- Can't call `size()` and `itemAt()` on a const object. What if these methods change fields?
+- Can't call `size()` and `itemAt()` on a `const` object. Compilers are worried that these methods might change the fields.
 - Since they don't, declare them as `const`
 
 ```C++
-struct vector {
+struct Vector {
     ...
-    size_t size() const;    // Means these methods will not modify fields
-    int &itemAt(size_t i) const;    // Can be called on const objects
+    size_t size() const;
+    int &itemAt(size_t i) const;    
+    // Means these methods will not modify fields
+    // Can be called on const objects
     ...
 };
 
-size_t vector::size() const {return n};
-int &vector:itemAt(size_t i) const {return theVector[i];}
+size_t Vector::size() const {
+    return n;
+}
+
+int &Vector:itemAt(size_t i) const {
+    return theVector[i];
+}
 ```
 
 Now the loop will work.
 
-BUT:
+**BUT:**
 
 ```C++
-void f(const vector &v) {
-    v.itemAt(0) = 4;    // Works!! v not very const...
+void f(const Vector &v) {
+    v.itemAt(0) = 4;
+    // v.itemAt(0) gets a reference back
+    // I am free to changed the data that reference is pointing 
+    //   at - nothing in compiler can stop me
+    // Works!! v not very const...
 }
 ```
 
@@ -46,32 +58,46 @@ void f(const vector &v) {
 Can we fix this?
 
 ```C++
-struct vector {
+struct Vector {
     ...
     const int &itemAt(size_t i) const;
+    // adding a const in front of the declaration, prohibiting
+    //   users from changing this reference
 };
 
 const int &itemAt(size_t i) const {
+    // adding a const in front of the definition as well
     return theVector[i];
 }
 ```
 
-Now `v.itemAt(0) = 4` won't compile if `v` is const, but it also won't compile if `v` is not const
+Now `v.itemAt(0) = 4` won't compile if `v` is const.
+
+**BUT!** it also won't compile if `v` is not const. \**ahhhhhhh*\*
+
+Problem: cannot define methods based on if user defined them as `const` or not 
 
 To fix: **const overloading**
 
 ```C++
-struct vector {
+struct Vector {
     ...
-    const int &itemAt(size_t i) const;  // Will be called if the object is const
-    int &itemAt(size_t i);  // Will be called if object is non-const
+    const int &itemAt(size_t i) const;
+    // Will be called if the object is const
+    int &itemAt(size_t i);
+    // Will be called if object is non-const
 };
 
-inline const int &Vector::itemAt(size_t i) const {return theVector[i];}
-inline int &vector::itemAt(size_t) {return theVector[i]};
+inline const int &Vector::itemAt(size_t i) const {
+    return theVector[i];
+}
+
+inline int &Vector::itemAt(size_t) {
+    return theVector[i];
+}
 ```
 
-Putting in `inline` tells the compile to replace the function call with the function body to save the cost of having to call a function
+Putting in `inline` tells the compile to replace the function call with the function body to save the cost of having to call a function - \**Don't call it, just drop the function body right there*\*
 
 Merely a suggestion, compiler can choose to ignore it if it sees fit. Good idea for small functions
 
@@ -80,13 +106,14 @@ So now `v.itemAt(0) = 4;` will only compile if and only if `v` is non-const
 Now let's make it prettier:
 
 ```C++
-struct vector {
-    size_t size() const {return n;} // Method body inside class implcity declares the method inline
+struct Vector {
+    size_t size() const {return n;}
+    // Method body inside class implcity declares the method inline
     const int &operator[](size_t i) const {return theVector[i]};
     int &operator[](size_t i) {return theVector[i];}    
 };
 
-ostream &operator<<(ostream &out, const vector &v) {
+ostream &operator<<(ostream &out, const Vector &v) {
     for (size_t i = 0; i < v.size(); ++i) {
         out << v[i] << " ";
     }

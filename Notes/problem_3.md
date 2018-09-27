@@ -1,7 +1,7 @@
 [Linear Collections and Modularity <<](./problem_2.md) | [**Home**](../README.md) | [>> Copies](./problem_4.md) 
 
 # Problem 3: Linear Collections and Memory Management
-**2017-09-14**  
+**2018-09-18**  
 **Readings:** 7.7.1, 14, 16.2 
 
 **Arrays**
@@ -31,7 +31,7 @@ _vector.h_
 #define VECTOR_H
 
 namespace CS246E {
-    struct vector {
+    struct Vector {
         size_t size, cap;
         int *theVector;
     }
@@ -39,17 +39,17 @@ namespace CS246E {
 
 const size_t startsize = 1;
 
-vector make_vector();
+Vector make_vector();
 
-size_t size(const vector &v);
+size_t size(const Vector &v);
 
-int &itemAt(const vector &v, size_t i);
+int &itemAt(const Vector &v, size_t i);
 
-void push_back(const vector &v, int x);
+void push_back(const Vector &v, int x);
 
-void pop_back(const vector&v);
+void pop_back(const Vector&v);
 
-void dispose(vector &v);
+void dispose(Vector &v);
 
 #endif
 ```
@@ -57,10 +57,10 @@ void dispose(vector &v);
 _vector.cc_
 
 ```C++
-#include "vector.h"
+#include "Vector.h"
 
 namespace {  // Anonymous namespace makes the function only visible to file (same as static in C)
-    void increaseCap(CS246E::vector &v) {
+    void increaseCap(CS246E::Vector &v) {
         if (v.size == v.cap) {
             int *newVec = new int[2 * v.cap];
 
@@ -75,31 +75,31 @@ namespace {  // Anonymous namespace makes the function only visible to file (sam
     }
 }
 
-CS246E::vector CS246E::make_vector() {
-    vector v {0, startSize, new int[startSize]};
+CS246E::Vector CS246E::make_vector() {
+    Vector v {0, startSize, new int[startSize]};
     return v;
 }
 
-size_t CS246E::size(const vector &v) {
+size_t CS246E::size(const Vector &v) {
     return v.size;
 }
 
-int &CS246E::itemAt(const vector &v, size_t i) {
+int &CS246E::itemAt(const Vector &v, size_t i) {
     return v.theVector[i];
 }
 
-void CS246E::push_back(vector &v, int n) {
+void CS246E::push_back(Vector &v, int n) {
     increaseCap(v);
     v.theVector[v.size++] = n;
 }
 
-void CS246E::pop_back(vector &v) {
+void CS246E::pop_back(Vector &v) {
     if (v.size > 0) {
         --v.size;
     }
 }
 
-void CS246E::dispose(vector &v) {
+void CS246E::dispose(Vector &v) {
     delete[] v.theVector;
 }
 ```
@@ -107,12 +107,12 @@ void CS246E::dispose(vector &v) {
 _main.cc_
 
 ```C++
-#include "vector.h"
+#include "Vector.h"
 
-using CS246E::vector;  // only allows you to use vector without CS246E::
+using CS246E::Vector;  // only allows you to use Vector without CS246E::
 
 int main() {
-    vector v = CS246E::make_vector();
+    Vector v = CS246E::make_vector();
     push_back(v, 1);
     push_back(v, 10);
     push_back(v, 100);  // Can add as many items as we want without worrying about allocation
@@ -413,16 +413,16 @@ _vector.h_
 #define VECTOR_H
 
 namespace CS246E {
-    struct vector {
+    struct Vector {
         size_t n, cap;
         int *theVector;
 
-        vector();
+        Vector();
         size_t size();
         int &itemAt(size_t i);
         void push_back();
         void pop_back();
-        ~vector();
+        ~Vector();
     };
 }
 #endif
@@ -431,27 +431,27 @@ namespace CS246E {
 _vector.cc_
 
 ```C++
-#include "vector.h"
+#include "Vector.h"
 
 namespace {
-    void increaseCap(vector &v) {
+    void increaseCap(Vector &v) {
         ...
     }
 }
 
 const size_t startSize = 1;
 
-CS246E::vector::vector(): 
+CS246E::Vector::Vector(): 
     n{0}, cap{startSize}, theVector{new int[cap]} {
 }
 
-size_t CS246E::vector::size() {
+size_t CS246E::Vector::size() {
     return n;
 }
 
 // Etc.
 
-CS246E::vector::~vector() {
+CS246E::Vector::~Vector() {
     delete[] theVector;
 }
 ```
@@ -460,7 +460,7 @@ _main.cc_
 
 ```C++
 int main() {
-    vector v;   // Constructor is already called - no make_vector
+    Vector v;   // Constructor is already called - no make_vector
     v.push_back(1);
     v.push_back(10);
     v.push_back(100);
