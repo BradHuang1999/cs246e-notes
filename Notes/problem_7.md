@@ -1,7 +1,9 @@
 [I want a constant vector <<](./problem_6.md) | [**Home**](../README.md) | [>> Efficient Iteration](./problem_8.md)
 
-# Problem 7: Tampering
-**2017-09-21**
+# Problem 7: Tampering (Encapsulation)
+**2018-10-02**
+
+Consider the following code:
 
 ```C++
 vector v;
@@ -10,35 +12,40 @@ v.push_back(1);
 v.push_back(10);
 ...  // Undefined behaviour - will likely crash
 ```
+
 **Interfering with ADTs (Abstract Data Types)**
+
+Two ways can interfere with ADTs:
 
 1. Forgery 
     - Creating an object without a constructor function
         - Not possible once we wrote constructors
-1. Tampering
+2. Tampering
     - Accessing the internals without using provided interface functions
 
 What's the big deal? _Invariants_
 
-- Statement that will always be true about an abstraction
+- Invariants are statements that will always be true about an abstraction
 
-ADT's provide and rely on invariants
+- ADT's provide and rely on invariants - examples:
 
-- **Stacks**
-    - Provide the invariant that the last item pushed is the first item popped
-- **Vectors**
-    - Rely on the invariant that elements `O`, ..., `cap-1` denote valid locations
+    - **Stacks**
+        - Provide the invariant that the last item pushed is the first item popped
+    - **Vectors**
+        - Rely on the invariant that elements `O`, ..., `cap-1` denote valid locations to access
 
-Cannot gaurantee invariants if the user can interfere, makes the program hard to reason behind
+- Cannot guarantee invariants if the user can interfere, makes the program hard to reason behind
 
 **Fix:** _encapsulation_, seal objects into "black boxes"
 
 ```C++
 struct vector {
-    private:    // Fields are only accessible within the vector class
+    private:
+    // Fields are only accessible within the vector class
         size_t n, cap;      
         int *theVector;
-    public:     // Visible to all
+    public:
+    // Visible to all
         vector();
         size_t size() const;
         void push_back(int n);
@@ -46,7 +53,7 @@ struct vector {
 };
 ```
 
-If no access specifer is given: default is public
+If no access specifier is given: default is public
 
 In a previous lecture:
 
@@ -63,6 +70,7 @@ Try again:
 _vector.h_
 ```C++
 struct vector {
+    // Don't need anonymous namespace anymore
     private:
         size_t ...
         ...
@@ -79,9 +87,10 @@ NOW
 _vector.cc_
 ```C++
 namespace CS246E {
-    vector::vector() {...}  
-    // etc. as before
-    void vector::increaseCap() {...}  // Don't need anonymous namespaces anymore!
+    vector::vector() {...}
+    ... // etc. as before
+    void vector::increaseCap() {...}
+    // Don't need anonymous namespaces anymore!
 };
 ```
 
@@ -94,6 +103,7 @@ namespace CS246E {
 _vector.cc_
 ```C++
 class vector {
+    // private variables
         size_t n, cap;
         int *theVector;
     public:
@@ -112,27 +122,30 @@ Node n {3, nullptr};    // Stack allocated
 Node m {4, &n}; // m's dtor will try to delete &n (undefined)
 ```
 
-There was an invariant that - `next` is `nullptr` or was allocated by `new`
+There was an invariant that - `next` should be either `nullptr` or be allocated by `new`
 
 How can we enforce this? 
 - Encapsulate Node inside a "wrapper" class
 
 ```C++
 class list {
-    struct Node {    // Private nested class - not available outside
+    struct Node {
+        // Private nested class - not available outside
         int data;
         Node *next; // ... methods
     };
 
     Node *theList;
+    size_t n;
     
     public:
         list(): theList{nullptr} {}
         ~list() {delete theList;}
-        size_t size() const;
+        size_t size() const {return n;}
 
         void push_front(int n) {
             theList = new Node{n, theList};
+            ++n;
         }
 
         void pop_font() {
@@ -141,13 +154,14 @@ class list {
                 theList = theList->next;
                 tmp->next = nullptr;
                 delete tmp;
+                --n;
             }
         }
 
         const int &operator[](size_t i) const {
             Node *cur = theList;
             for (size_t j = 0; j < i && cur; ++j, cur=cur->next);
-            return curr->daata;
+            return curr->data;
         }
 
         int &operator[](size_t i) {
@@ -157,7 +171,8 @@ class list {
         }   
 };
 ```
-Client cannot manipulate the list directly
+
+Result: Client cannot manipulate the list directly
 - No access to next pointers
 - Invariant is maintained
 

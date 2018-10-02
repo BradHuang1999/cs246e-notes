@@ -1,13 +1,14 @@
-[Tampering << ](./problem_7.md) | [**Home**](../README.md) | [>> Staying in bounds](./problem_9.md) 
+[Tampering << ](./problem_7.md) | [**Home**](../README.md) | [>> Staying in bounds](./problem_9.md)
 
 # Problem 8: Efficient Iteration
-**2017-09-28**
+
+**2018-10-02**
 
 Consider the two implementations Vector and List
 
 ```C++
 vector v;
-v.push_back(___);
+v.push_back(...);
 ...
 
 for (size_t i = 0; i < v.size(); ++i) {
@@ -20,7 +21,7 @@ for (size_t i = 0; i < v.size(); ++i) {
 
 ```C++
 list l;
-l.push_front(___);
+l.push_front(...);
 ...
 
 for (size_t i = 0; i < l.size(); ++i) {
@@ -32,12 +33,13 @@ for (size_t i = 0; i < l.size(); ++i) {
 - No direct access to "next" pointers, how can we do efficient iteration?
 
 - **Design Patterns**
-    - Well known solutions to well-studied problems
-    - Adapted to suit needs
+  - Well known solutions to well-studied problems
+  - Adapted to suit needs
 - **Iterator Pattern**
-    - Efficient iteration over a collection, without exposing the underlying structure
+  - Efficient iteration over a collection, without exposing the underlying structure
 
-**Idea:** Create a class that "remembers" where you are in the list (abstraction of a pointer)  
+**Idea:** Create a class that "remembers" where you are in the list (abstraction of a pointer)
+
 **Inspiration:** C
 
 ```C
@@ -57,7 +59,9 @@ class list {
 
             public:
                 iterator(Node *p): p{p} {}
-                bool operator!=(const iterator &other) const {return p != other.p}
+                bool operator!= (const iterator &other) const {
+                    return p != other.p;
+                }
                 int &operator*() {return p->data;}
                 iterator &operator++() {    // Prefix version
                     p = p->next;
@@ -69,6 +73,7 @@ class list {
         iterator end() {return iterator{nullptr};}
 };
 ```
+
 ```C++
 list l;
 
@@ -77,7 +82,8 @@ for (list::iterator it = l.begin(); it != l.end(); ++it) {
 }
 ```
 
-**Q:** Should `list::begin` and `list::end` be `const` methods?  
+**Q:** Should `list::begin` and `list::end` be `const` methods?
+
 **Consider:**
 
 ```C++
@@ -87,8 +93,7 @@ ostream &operator<<(ostream &out, const list &l) {
     }
     ...
 }
-
-``` 
+```
 
 Won't compile if `begin`/`end` are not `const`
 
@@ -104,6 +109,7 @@ ostream &operator<<(ostream &out, const list&l) {
 Will compile but shouldn't, the list is supposed to be `const`, but `*` returns as non-`const`
 
 **Conclusion:** iteration over `const` is different from iteration over non-`const`
+
 - Make a second iterator class
 
 ```C++
@@ -117,7 +123,7 @@ class list {
 
             public:
                 iterator(Node *p): p{p} {}
-                bool operator!=(const iterator &other) const { return p != other.p; }
+                bool operator!= (const iterator &other) const {return p != other.p;}
                 int &operator*() const { return p->data; }
                 iterator &operator++() {    // Prefix version
                     p = p->next;
@@ -130,7 +136,7 @@ class list {
 
             public:
                 const_iterator(Node *p): p{p} {}
-                bool operator!=(const const_iterator &other) { return p != other.p; }
+                bool operator!= (const const_iterator &other) {return p != other.p;}
                 const int &operator*() const { return p->data; }
                 const_iterator &operator++() {
                     p = p->next;
@@ -152,6 +158,7 @@ list::const_iterator it = l.begin();    // Mouthful
 ```
 
 Shorter:
+
 ```C++
 ostream &operator<<(...) {
     for (auto it = l.begin(); it != l.end(); ++it) {
@@ -166,8 +173,8 @@ Even shorter:
 
 ```C++
 ostream &operator<<(___) {
-    for (auto n : l) { 
-        out << n << '\n';   
+    for (auto n : l) {
+        out << n << '\n';
     }
 
     return out;
@@ -175,24 +182,26 @@ ostream &operator<<(___) {
 ```
 
 This is a range-based `for` loop
+
 - Available for any class with:
-    - Methods (or functions) `begin()` and `end()` that return an iterator object
-    - The iterator class must support unary`*`, prefix`++`, and `!=`
+  - Methods (or functions) `begin()` and `end()` that return an iterator object
+  - The iterator class must support unary`*`, prefix`++`, and `!=`
 
 **Note:**
+
 - `for (auto n: l) ++n;`
-    - `n` is declared by value
-    - `++n` increments n, not the list items
+  - `n` is declared by value
+  - `++n` increments n, not the list items
 - `for (auto &n : l) ++n;`
-    -  `n` is a reference, will update list elements
+  - `n` is a reference, will update list elements
 - `for (const auto &n : l) ____;`
-    - `const` reference, cannot be mutated
+  - `const` reference, cannot be mutated
 
 One small encapsulation problem:
 
 **Client:** `list::iterator it {nullptr}`
-- Forgery, create an end iterator without calling `end();`
 
+- Forgery, create an end iterator without calling `end();`
 
 **To fix:** make iterator constructor private  
 **BUT:** List can't create iterators either  
@@ -205,7 +214,7 @@ class list {
         class iterator {
             ...
             iterator(Node *p) {}
-           
+
             public:
             ...
             friend class list;  // list has access to all iterator's/const_iterator's implementation
@@ -225,7 +234,7 @@ Can do the same for vectors:
 class vector {
     size_t size, cap;
     int *theVector;
-    
+
     public:
         class iterator {
             int *p;
@@ -272,4 +281,5 @@ iterator end() {return theVector + n;}
 ```
 
 ---
-[Tampering << ](./problem_7.md) | [**Home**](../README.md) | [>> Staying in bounds](./problem_9.md) 
+
+[Tampering << ](./problem_7.md) | [**Home**](../README.md) | [>> Staying in bounds](./problem_9.md)

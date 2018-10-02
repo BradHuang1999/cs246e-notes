@@ -108,9 +108,10 @@ Now let's make it prettier:
 ```C++
 struct Vector {
     size_t size() const {return n;}
-    // Method body inside class implcity declares the method inline
     const int &operator[](size_t i) const {return theVector[i]};
     int &operator[](size_t i) {return theVector[i];}    
+    // Method body inside class
+    //   implicitly declares the method inline
 };
 
 ostream &operator<<(ostream &out, const Vector &v) {

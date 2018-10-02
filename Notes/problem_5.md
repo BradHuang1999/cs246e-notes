@@ -80,8 +80,7 @@ struct Node {
 };
 ```
 
----
-**2018-09-27**
+> **2018-09-27**
 
 Can combine copy/move assignment:
 
