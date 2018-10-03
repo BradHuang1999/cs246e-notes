@@ -59,18 +59,28 @@ class list {
 
             public:
                 iterator(Node *p): p{p} {}
+
                 bool operator!= (const iterator &other) const {
                     return p != other.p;
                 }
-                int &operator*() {return p->data;}
+
+                int &operator*() {
+                    return p->data;
+                }
+
                 iterator &operator++() {    // Prefix version
                     p = p->next;
                     return *this;
                 }
         }
 
-        iterator begin() {return iterator{theList};}
-        iterator end() {return iterator{nullptr};}
+        iterator begin() {
+            return iterator{theList};
+        }
+
+        iterator end() {
+            return iterator{nullptr};
+        }
 };
 ```
 
@@ -89,9 +99,10 @@ for (list::iterator it = l.begin(); it != l.end(); ++it) {
 ```C++
 ostream &operator<<(ostream &out, const list &l) {
     for (list::iterator it = l.begin(); it != l.end(); ++it) {
-        ...
+        out << *it << '\n';
     }
-    ...
+
+    return out;
 }
 ```
 
@@ -99,7 +110,7 @@ Won't compile if `begin`/`end` are not `const`
 
 ```C++
 ostream &operator<<(ostream &out, const list&l) {
-    for (...) {
+    for (list::iterator it = l.begin(); it != l.end(); ++it) {
         out << *it << '\n';
         ++*it;  // increment items in the list
     }
@@ -123,8 +134,15 @@ class list {
 
             public:
                 iterator(Node *p): p{p} {}
-                bool operator!= (const iterator &other) const {return p != other.p;}
-                int &operator*() const { return p->data; }
+
+                bool operator!= (const iterator &other) const {
+                    return p != other.p;
+                }
+
+                int &operator*() const {
+                    return p->data;
+                }
+
                 iterator &operator++() {    // Prefix version
                     p = p->next;
                     return *this;
@@ -136,18 +154,36 @@ class list {
 
             public:
                 const_iterator(Node *p): p{p} {}
-                bool operator!= (const const_iterator &other) {return p != other.p;}
-                const int &operator*() const { return p->data; }
+
+                bool operator!= (const const_iterator &other) {
+                    return p != other.p;
+                }
+
+                const int &operator*() const {
+                    return p->data;
+                }
+
                 const_iterator &operator++() {
                     p = p->next;
                     return *this;
                 }
         };
 
-        iterator begin() { return iterator{the_list}; }
-        iterator end() { return iterator{nullptr}; }
-        const_iterator begin() const { return const_iterator{theList}; }
-        const_iterator end() const { return const_iterator {nullptr}; }
+        iterator begin() {
+            return iterator{the_list};
+        }
+
+        iterator end() {
+            return iterator{nullptr};
+        }
+
+        const_iterator begin() const {
+            return const_iterator{theList};
+        }
+
+        const_iterator end() const {
+            return const_iterator {nullptr};
+        }
 };
 ```
 
@@ -160,7 +196,7 @@ list::const_iterator it = l.begin();    // Mouthful
 Shorter:
 
 ```C++
-ostream &operator<<(...) {
+ostream &operator<< (ostream &out, const list &l) {
     for (auto it = l.begin(); it != l.end(); ++it) {
         out << *it << '\n';
     }
@@ -172,7 +208,7 @@ ostream &operator<<(...) {
 Even shorter:
 
 ```C++
-ostream &operator<<(___) {
+ostream &operator<< (ostream &out, const list &l) {
     for (auto n : l) {
         out << n << '\n';
     }
@@ -181,7 +217,7 @@ ostream &operator<<(___) {
 }
 ```
 
-This is a range-based `for` loop
+This is known as a range-based `for` loop
 
 - Available for any class with:
   - Methods (or functions) `begin()` and `end()` that return an iterator object
@@ -194,7 +230,7 @@ This is a range-based `for` loop
   - `++n` increments n, not the list items
 - `for (auto &n : l) ++n;`
   - `n` is a reference, will update list elements
-- `for (const auto &n : l) ____;`
+- `for (const auto &n : l) ...;`
   - `const` reference, cannot be mutated
 
 One small encapsulation problem:
@@ -217,11 +253,13 @@ class list {
 
             public:
             ...
-            friend class list;  // list has access to all iterator's/const_iterator's implementation
+            friend class list;
+            // list has access to all iterator's/const_iterator's implementation
         };
 
-        class const_iterator {  // Same (friend class list)
+        class const_iterator {
             ...
+            friend class list;  // Same
         }
 };
 ```
