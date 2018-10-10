@@ -1,6 +1,7 @@
 [<< Abstraction over Iterators](./problem_24.md) | [**Home**](../README.md) | [>> Collecting Stats](./problem_26.md)
 
 # Problem 25: I want an even faster vector
+
 **2017-11-21**
 
 In the good old days of C, you could copy an array (even an array of structs!) very quickly by calling a function `memcpy` (similar to `strcpy`, but for arbitrary memory, not just strings).
@@ -12,13 +13,14 @@ Nowadays in C++, copies invoke copy constructors, which are costly function call
 _Good news!_
 
 In C++, a type is considered POD (plain old data) if it:
+
 - has a trivial default constructor (equiv. to `= default`)
 - is triviable copiable
-    - copy/move operations, destructor has default implementations
+  - copy/move operations, destructor has default implementations
 - is standard layout
-    - no virtual methods or bases
-    - no reference members
-    - no fields in both base class & subclass, or in multiple base classes
+  - no virtual methods or bases
+  - no reference members
+  - no fields in both base class & subclass, or in multiple base classes
 
 For POD types, semantics is compatible with C, and `memcpy` is safe to use.
 
@@ -105,13 +107,14 @@ template<typename T> class vector {
 };
 ```
 
-That is, why do we need the extra template out front? 
+That is, why do we need the extra template out front?
 
-Because SFINAE applies to template functions and these  methods are ordinary functions (constructors), not templates.
+Because SFINAE applies to template functions and these methods are ordinary functions (constructors), not templates.
+
 - They depend on `T`, but `T`'s value was deternmined when you decided what to put in the vector
 - If substituting `T=t` fails, it invalidates the entire `vector` class, not just the method
 
-So make a seperate template, with a new arg `X`, which can be defaulted to `T`, and do `is_pod<X>`, not `is_pod<T>`. 
+So make a seperate template, with a new arg `X`, which can be defaulted to `T`, and do `is_pod<X>`, not `is_pod<T>`.
 
 ... It compiles, but when we run it, it crashes
 
@@ -144,10 +147,10 @@ template<typename T> class vector {
     public:
         vector(const vector &other): vector{other, dummy{}} {}
 
-        template<typename X = T> 
+        template<typename X = T>
         vector(typename enable_if<...>::type other, dummy) { ... }
 
-        template<typename X = T> 
+        template<typename X = T>
         vector(typename enable_if<...>::type other, dummy) { ... }
 };
 ```
@@ -180,6 +183,7 @@ template <typename T> class vector {
 We now have enough machinery to implement `std::move` and `std::forward`.
 
 _`std::move`_ - first attempt
+
 ```C++
 template<typename T> T &&move(T & x) {
     return static_cast<T &&>(x);
@@ -187,8 +191,9 @@ template<typename T> T &&move(T & x) {
 ```
 
 Doesn't quite work, `T&&` is a universal reference, not an rvalue reference. If `x` was an lvalue reference, `T&&` is an lvalue reference.
+
 - Need to make sure `T` is not an lvalue reference
-    - If `T` is an lvalue reference, get rid of the reference
+  - If `T` is an lvalue reference, get rid of the reference
 
 ```C++
 template<typename T> inline typename std::remove_reference<T>::type && move(T &&x) {
@@ -200,9 +205,7 @@ template<typename T> inline typename std::remove_reference<T>::type && move(T &&
 **Exercise:** write `remove_reference`
 
 **Q:** can we save typing and use `auto`? Ex.
-    ```C++
-    template<typename T> auto move(T &&x) { ... }
-    ```
+`C++ template<typename T> auto move(T &&x) { ... }`
 **A:** No! By-value auto throws away reference and outer consts
 
 ```C++
@@ -221,7 +224,7 @@ Need a type definition rule that doesn't discard references.
 ```C++
 decltype(...)  // returns the type that ... was declared to have
 decltype(var)  // returns the declared type of the variable
-decltype(expr) // returns lvalue or rvalue, depending on whether the expr 
+decltype(expr) // returns lvalue or rvalue, depending on whether the expr
                //  is an lvalue or rvalue
 
 int z;
@@ -251,6 +254,7 @@ template<typename T> decltype(auto) move(T &&x) {
 ```
 
 _`std::forward`_
+
 ```C++
 template<typename T> inline T&& move(T &&x) {
     return static_cast<T&&>(x);
@@ -258,6 +262,7 @@ template<typename T> inline T&& move(T &&x) {
 ```
 
 **Reasoning:**
+
 - If `x` is an lvalue, `T&&` is an lvalue reference
 - If `x` is an rvalue, `T&&` is an rvalue reference
 
@@ -276,22 +281,24 @@ In order to work, `forward` must know what type (including l/rvalue) was deduced
 So in principle, `forward<T>(y)` would work.
 
 **2 Problems:**
+
 - Supplying `T` means `T&&` is no longer universal
 - Want to prevent the user from omitting `<T>`
 
 **Instead:** separate lvalue/rvalue cases
 
 ```C++
-template<typename T> 
+template<typename T>
 inline constexpr T&& forward(std::removed_reference_t<T>&x) noexcept {
     return static_cast<T&&>(x);
 }
 
-template<typename T> 
+template<typename T>
 inline constexpr T&& forward(std::removed_reference_t<T>&&x) noexcept {
     return static_cast<T&&>(x);
 }
 ```
 
 ---
+
 [<< Abstraction over Iterators](./problem_24.md) | [**Home**](../README.md) | [>> Collecting Stats](./problem_26.md)

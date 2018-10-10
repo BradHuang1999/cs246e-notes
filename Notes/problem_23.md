@@ -1,11 +1,13 @@
 [<< A big unit on Object Oriented Design](./object_oriented_design.md) | [**Home**](../README.md) | [>> Abstraction over Iterators](./problem_24.md)
 
 # Problem 23 - Shared Ownership
+
 **2017-11-16**
 
 Is C++ hard? (No, if you're a client programmer)
 
 But explicit memory management...
+
 - If you need an array, use `vector`
 - If you need a heap object, use `unique_ptr`
 - Use stack-allocated objects as much as possible
@@ -51,8 +53,9 @@ Works for any `unique_ptr` whose pointer is assignment compatible with `this->p`
 Ex. Subtypes of `T`, but not supertypes of `T`
 
 "But I want two smart pointers pointing at the same object!"
+
 - Why? The pointers that owns the object should be a `unique_ptr`
-    - All others should be raw pointers
+  - All others should be raw pointers
 
 When would you want true shared ownership?
 
@@ -95,7 +98,7 @@ template <typename T> class shared_ptr {
 - `p` is only deleted if its `refcount` reaches `0`
 - implementation details - left to you
 
-```C++ 
+```C++
 struct Node {
     int data;
     shared_ptr<Node> next;
@@ -107,7 +110,7 @@ Now deallocation is as easy as garbage collection
 Just watch: cycles
 
 ```
-   +---+---+    +---+---+  
+   +---+---+    +---+---+
    | 1 | ------>| 2 | -----+
    +---+---+    +---+---+  |
      ^                     |
@@ -134,7 +137,7 @@ BUT
 You can't `dynamic_cast` these pointers
 
 ```C++
-template<typename T, typename U> 
+template<typename T, typename U>
 shared_ptr<T> dynamic_pointer_cast(const shared_ptr<U> &spu) {
     return shared_ptr<T>(dynamic_cast<T*>(spu.get()));
 }
@@ -143,4 +146,5 @@ shared_ptr<T> dynamic_pointer_cast(const shared_ptr<U> &spu) {
 Similarily `const_pointer_cast`, `static_pointer_cast`
 
 ---
+
 [<< A big unit on Object Oriented Design](./object_oriented_design.md) | [**Home**](../README.md) | [>> Abstraction over Iterators](./problem_24.md)

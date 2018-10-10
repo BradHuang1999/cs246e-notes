@@ -1,6 +1,7 @@
-[Input/Output <<](./problem_1.md) | [**Home**](../README.md) | [>> Linear Collections and Memory Management](./problem_3.md) 
+[Input/Output <<](./problem_1.md) | [**Home**](../README.md) | [>> Linear Collections and Memory Management](./problem_3.md)
 
 # Problem 2: Linear Collections and Modularity
+
 **2017-09-14**
 
 ### Linked lists and arrays
@@ -87,10 +88,12 @@ Including old C headers: `#include <stdio.h>` -> `#include <cstdio>`
 - All subsequent occurences of VAR are replaced with VALUE
 
 Ex.
+
 ```C++
 #define MAX 10
 int x[MAX];
 ```
+
 Translates to `int x[10];`
 
 Ex 2.
@@ -100,7 +103,7 @@ _myprogram.cc_
 int main() {
     int x[MAX];
     ...
-} 
+}
 ```
 
 Instead of defining the constant inside the code, we can use a command line arg
@@ -119,15 +122,17 @@ Instead of defining the constant inside the code, we can use a command line arg
 Choose one of the options to present to the compiler. `#else` also exists
 
 **Special Case:**
+
 ```C++
 #if 0  // industrial-strength "comment out"
 ...    // /* ... */ doesn't nest
-#endif // Does nest 
+#endif // Does nest
 ```
 
 Fixing the include problem: `#include guards`
 
 _node.h_
+
 ```C++
 #ifndef NODE_H  // If NODE\_H is not defined"
 #define NODE_H  // Value is the empty string
@@ -153,7 +158,7 @@ Now what if someone writes:
 ```C++
 struct Node {
    int data;
-   Node *left, *right; 
+   Node *left, *right;
 };
 
 size_t size(Node *n); // Size of tree
@@ -172,7 +177,7 @@ namespace List {
         Node *next;
     };
 
-    size_t size(Node *n); 
+    size_t size(Node *n);
 }
 ```
 
@@ -185,7 +190,7 @@ namespace Tree {
         Node *left, *right;
     };
 
-    size_t size(Node *n); 
+    size_t size(Node *n);
 }
 ```
 
@@ -204,7 +209,7 @@ _tree.cc_
 ```C++
 #include "tree.h"
 
-size_t Tree::size(Node *n) { 
+size_t Tree::size(Node *n) {
     ...
 }
 ```
@@ -213,7 +218,7 @@ size_t Tree::size(Node *n) {
 
 Anyone can add items to any namespace
 
-_some\_other\_file.h_
+_some_other_file.h_
 
 ```C++
 namespace List {
@@ -222,4 +227,5 @@ namespace List {
 ```
 
 ---
-[Input/Output <<](./problem_1.md) | [**Home**](../README.md) | [>> Linear Collections and Memory Management](./problem_3.md) 
+
+[Input/Output <<](./problem_1.md) | [**Home**](../README.md) | [>> Linear Collections and Memory Management](./problem_3.md)

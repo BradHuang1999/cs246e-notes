@@ -309,7 +309,7 @@ Could do this, OR:
 typedef int *iterator;
 typedef const int *const_iterator;
 
----
+...
 
 using iterator = int*;
 using const_iterator = const int*;

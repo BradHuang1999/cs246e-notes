@@ -1,7 +1,8 @@
-[Moves << ](./problem_5.md) | [**Home**](../README.md) | [>> Tampering](./problem_7.md) 
+[Moves << ](./problem_5.md) | [**Home**](../README.md) | [>> Tampering](./problem_7.md)
 
 # Problem 6: I want a constant Vector
-**2018-09-27**
+
+> **2018-09-27**
 
 Say we want to print a `Vector`:
 
@@ -14,7 +15,7 @@ ostream &operator <<(ostream &out, const Vector &v) {
 }
 ```
 
-This won't compile! \**lushman pls*\*
+This won't compile! \*_lushman pls_\*
 
 - Can't call `size()` and `itemAt()` on a `const` object. Compilers are worried that these methods might change the fields.
 - Since they don't, declare them as `const`
@@ -23,7 +24,7 @@ This won't compile! \**lushman pls*\*
 struct Vector {
     ...
     size_t size() const;
-    int &itemAt(size_t i) const;    
+    int &itemAt(size_t i) const;
     // Means these methods will not modify fields
     // Can be called on const objects
     ...
@@ -46,7 +47,7 @@ Now the loop will work.
 void f(const Vector &v) {
     v.itemAt(0) = 4;
     // v.itemAt(0) gets a reference back
-    // I am free to changed the data that reference is pointing 
+    // I am free to changed the data that reference is pointing
     //   at - nothing in compiler can stop me
     // Works!! v not very const...
 }
@@ -73,9 +74,9 @@ const int &itemAt(size_t i) const {
 
 Now `v.itemAt(0) = 4` won't compile if `v` is const.
 
-**BUT!** it also won't compile if `v` is not const. \**ahhhhhhh*\*
+**BUT!** it also won't compile if `v` is not const. \*_ahhhhhhh_\*
 
-Problem: cannot define methods based on if user defined them as `const` or not 
+Problem: cannot define methods based on if user defined them as `const` or not
 
 To fix: **const overloading**
 
@@ -97,7 +98,7 @@ inline int &Vector::itemAt(size_t) {
 }
 ```
 
-Putting in `inline` tells the compile to replace the function call with the function body to save the cost of having to call a function - \**Don't call it, just drop the function body right there*\*
+Putting in `inline` tells the compile to replace the function call with the function body to save the cost of having to call a function - \*_Don't call it, just drop the function body right there_\*
 
 Merely a suggestion, compiler can choose to ignore it if it sees fit. Good idea for small functions
 
@@ -109,7 +110,7 @@ Now let's make it prettier:
 struct Vector {
     size_t size() const {return n;}
     const int &operator[](size_t i) const {return theVector[i]};
-    int &operator[](size_t i) {return theVector[i];}    
+    int &operator[](size_t i) {return theVector[i];}
     // Method body inside class
     //   implicitly declares the method inline
 };
@@ -124,4 +125,5 @@ ostream &operator<<(ostream &out, const Vector &v) {
 ```
 
 ---
-[Moves << ](./problem_5.md) | [**Home**](../README.md) | [>> Tampering](./problem_7.md) 
+
+[Moves << ](./problem_5.md) | [**Home**](../README.md) | [>> Tampering](./problem_7.md)

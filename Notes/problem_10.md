@@ -1,12 +1,14 @@
-[Staying in bounds << ](./problem_9.md) | [**Home**](../README.md) | [>> Better Initialization](./problem_11.md) 
+[Staying in bounds << ](./problem_9.md) | [**Home**](../README.md) | [>> Better Initialization](./problem_11.md)
 
 # Problem 10: I want a vector of chars
-**2017-10-03**
+
+**2018-10-04**
 
 Start over? No
 
-Introduce a major abstraction mechanism, **templates**
-- Generalize overtypes
+Introduce a major abstraction mechanism: **Templates**
+
+- Templates generalize over types
 
 _Vector.h_
 
@@ -50,10 +52,11 @@ int main() {
 ```
 
 - **Semantics:**
-    - The first time the compile encounters `Vector<int>`, it creates a version of the vector code where `int` replaces `T` and compiles that new class
-    - Can't do that unless it has all the details about the class
-    - So implementation must be available in `.h`
-    - Can also write bodies inline
+  - The first time the compile encounters `Vector<int>`, it creates a version of the vector code where `int` replaces `T` and compiles that new class
+  - Can't do that unless it has all the details about the class
+  - So implementation must be available in `.h`
+  - Can also write bodies inline
 
 ---
-[Staying in bounds << ](./problem_9.md) | [**Home**](../README.md) | [>> Better Initialization](./problem_11.md) 
+
+[Staying in bounds << ](./problem_9.md) | [**Home**](../README.md) | [>> Better Initialization](./problem_11.md)

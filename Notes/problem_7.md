@@ -1,6 +1,7 @@
 [I want a constant vector <<](./problem_6.md) | [**Home**](../README.md) | [>> Efficient Iteration](./problem_8.md)
 
 # Problem 7: Tampering (Encapsulation)
+
 **2018-10-02**
 
 Consider the following code:
@@ -17,11 +18,11 @@ v.push_back(10);
 
 Two ways can interfere with ADTs:
 
-1. Forgery 
-    - Creating an object without a constructor function
-        - Not possible once we wrote constructors
+1. Forgery
+   - Creating an object without a constructor function
+     - Not possible once we wrote constructors
 2. Tampering
-    - Accessing the internals without using provided interface functions
+   - Accessing the internals without using provided interface functions
 
 What's the big deal? _Invariants_
 
@@ -29,10 +30,10 @@ What's the big deal? _Invariants_
 
 - ADT's provide and rely on invariants - examples:
 
-    - **Stacks**
-        - Provide the invariant that the last item pushed is the first item popped
-    - **Vectors**
-        - Rely on the invariant that elements `O`, ..., `cap-1` denote valid locations to access
+  - **Stacks**
+    - Provide the invariant that the last item pushed is the first item popped
+  - **Vectors**
+    - Rely on the invariant that elements `O`, ..., `cap-1` denote valid locations to access
 
 - Cannot guarantee invariants if the user can interfere, makes the program hard to reason behind
 
@@ -42,7 +43,7 @@ What's the big deal? _Invariants_
 struct vector {
     private:
     // Fields are only accessible within the vector class
-        size_t n, cap;      
+        size_t n, cap;
         int *theVector;
     public:
     // Visible to all
@@ -58,6 +59,7 @@ If no access specifier is given: default is public
 In a previous lecture:
 
 _vector.cc_
+
 ```C++
 #include "vector.h"
 namespace {
@@ -68,6 +70,7 @@ namespace {
 Try again:
 
 _vector.h_
+
 ```C++
 struct vector {
     // Don't need anonymous namespace anymore
@@ -85,6 +88,7 @@ struct vector {
 
 NOW
 _vector.cc_
+
 ```C++
 namespace CS246E {
     vector::vector() {...}
@@ -95,12 +99,13 @@ namespace CS246E {
 ```
 
 - **Structs** (`struct`)
-    - Default public access
-    - Would be better if we had default private
+  - Default public access
+  - Would be better if we had default private
 - **Classes** (`class`)
-    - Exactly like struct, except private default access
+  - Exactly like struct, except private default access
 
 _vector.cc_
+
 ```C++
 class vector {
     // private variables
@@ -124,7 +129,8 @@ Node m {4, &n}; // m's dtor will try to delete &n (undefined)
 
 There was an invariant that - `next` should be either `nullptr` or be allocated by `new`
 
-How can we enforce this? 
+How can we enforce this?
+
 - Encapsulate Node inside a "wrapper" class
 
 ```C++
@@ -137,7 +143,7 @@ class list {
 
     Node *theList;
     size_t n;
-    
+
     public:
         list(): theList{nullptr} {}
         ~list() {delete theList;}
@@ -168,13 +174,15 @@ class list {
             Node *cur = theList;
             for (size_t j = 0; j < i && cur; ++j, cur=cur->next);
             return curr->data;
-        }   
+        }
 };
 ```
 
 Result: Client cannot manipulate the list directly
+
 - No access to next pointers
 - Invariant is maintained
 
 ---
+
 [I want a constant vector <<](./problem_6.md) | [**Home**](../README.md) | [>> Efficient Iteration](./problem_8.md)

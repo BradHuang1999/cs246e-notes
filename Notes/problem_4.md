@@ -1,7 +1,8 @@
-[Linear Collections and Memory Management << ](./problem_3.md) | [**Home**](../README.md) | [>> Moves](./problem_5.md) 
+[Linear Collections and Memory Management << ](./problem_3.md) | [**Home**](../README.md) | [>> Moves](./problem_5.md)
 
 # Problem 4: Copies
-**2018-09-25**
+
+> **2018-09-25**
 
 ```C++
 Vector v;
@@ -11,14 +12,16 @@ v.pushback(100);
 Vector w = v;  // Allowed - constructs w as a copy of v
 w.itemAt(0);  // 100
 v.itemAt(0); = 200;
-w.itemAt(0);  // 200 - **shallow copy**, v and w share data 
+w.itemAt(0);  // 200 - **shallow copy**, v and w share data
 ```
 
 Problems:
+
 - Operator= copies references from fields
 - The program will like crash in the end of the execution, as destructor would try to free twice on the shared data
 
 For `Vector w = v;`
+
 - Constructs `w` as a copy of `v`
 - Invokes the **copy constructor**
 
@@ -36,9 +39,9 @@ struct Node {   // Vector: exercise
     int data;
     Node *next;
     ...
-    Node (const Node &other): 
-        data{other.data}, 
-        next{other.next ? new Node{*(other.next)} : nullptr} 
+    Node (const Node &other):
+        data{other.data},
+        next{other.next ? new Node{*(other.next)} : nullptr}
         // Account for dereferencing a nullptr
         {...}
 };
@@ -48,10 +51,10 @@ struct Node {   // Vector: exercise
 Vector v;
 Vector w;
 
-w = v;  
+w = v;
 // Copy, but not a construction
 // Copy assignment operator
-// Compiler supplied: 
+// Compiler supplied:
 //   copies each field (shallow)
 //   causes the program to crash at destruction
 //   leaks w's old data
@@ -75,6 +78,7 @@ struct Node {   // Vector: excercise
 **WRONG - dangerous**
 
 Consider:
+
 ```C++
 Node n {...};
 n = n;
@@ -83,11 +87,13 @@ n = n;
 Destroys `n`'s data and then copies it.
 
 You might think: why would I ever do something like that? Consider:
+
 ```C++
 *p = *q     // p and q points to the same object
 ```
 
 Or:
+
 ```C++
 for (int i = 0; i < ...; i++) {
     for (int j = 0; j < ...; j++) {
@@ -127,17 +133,19 @@ struct Node {
     }
 
     Node &operator=(const Node &other) {
-        Node tmp = other;   
-        // we would assume that a working version of **deep** 
+        Node tmp = other;
+        // we would assume that a working version of **deep**
         //   copy constructor and destructor already exists
 
-        swap(tmp);  
-        // tmp is destroyed (by the working destructor) when it 
+        swap(tmp);
+        // tmp is destroyed (by the working destructor) when it
         //   is out of the scope
 
         return *this;
     }
 };
 ```
+
 ---
-[Linear Collections and Memory Management << ](./problem_3.md) | [**Home**](../README.md) | [>> Moves](./problem_5.md) 
+
+[Linear Collections and Memory Management << ](./problem_3.md) | [**Home**](../README.md) | [>> Moves](./problem_5.md)

@@ -1,8 +1,9 @@
-[Linear Collections and Modularity <<](./problem_2.md) | [**Home**](../README.md) | [>> Copies](./problem_4.md) 
+[Linear Collections and Modularity <<](./problem_2.md) | [**Home**](../README.md) | [>> Copies](./problem_4.md)
 
 # Problem 3: Linear Collections and Memory Management
+
 **2018-09-18**  
-**Readings:** 7.7.1, 14, 16.2 
+**Readings:** 7.7.1, 14, 16.2
 
 **Arrays**
 `int a[10];`
@@ -20,7 +21,7 @@ Use `new` with `delete`, and `new [...]` with `delete[]`
 Mismatching these is undefined behaviour
 
 **Problem:** what if our array isn't big enough
-Note: no `realloc` for `new`/`delete`  
+Note: no `realloc` for `new`/`delete`
 
 Use abstraction to solve the problem:
 
@@ -126,27 +127,29 @@ int main() {
 **Answer:** Argument-Dependent Lookup (ADL) - aka König lookup
 
 - If the type of a function f's argument belongs to a namespace n, then C++ will search the namespace n,
-as well as the current scope, for a function matching f
+  as well as the current scope, for a function matching f
 
 This is the reason why we can say
+
 ```C++
 std::cout << x
 // rather than
 std::operator<< (std::cout, x)
 ```
 
-- **Problems** 
-    - What if we forget to call `make_vector`? (uninitialized object)
-    - What if we forget to call `dispose`? (memory leak)
+- **Problems**
+  - What if we forget to call `make_vector`? (uninitialized object)
+  - What if we forget to call `dispose`? (memory leak)
 - How can we make this more robust?
 
 ## Introduction to Classes
+
 First concept in OOP - functions inside structs
 
 ```C++
 struct Student {
     int assns, mt, final;
-    
+
     float grade() {
         return assns*0.4 + mt*0.2 + final*0.4;
     }
@@ -168,7 +171,7 @@ What do `assns`, `mt`, `final`, mean with `grade() {...}`?
 
 - Fields of the _current_ object, the receiver of the method call (ie. `bob`)
 
-Formally, methods differ form functions in that methods have an implicit parameter called `this`, that is 
+Formally, methods differ form functions in that methods have an implicit parameter called `this`, that is
 a pointer to the receiver object.
 
 `this == &bob`
@@ -188,6 +191,7 @@ struct Student {
 ```
 
 ## Initializing objects
+
 ```C++
 Student bob {90, 70, 80}
 ```
@@ -216,20 +220,23 @@ Student bob {90, 70, 80};
 
 **Note:** once the constructor is defined, the C style field-by-field initialization is no longer available
 
-**Equiv:** 
-```C++ 
+**Equiv:**
+
+```C++
 Student bob = Student{90, 70, 80};
 ```
 
 **Heap:**
+
 ```C++
 Student *p = new Student{90, 80, 70};
 delete p;
 ```
+
 - **Advantages of constructors:**
-    - Default parameters
-    - Overloading
-    - Sanity checks
+  - Default parameters
+  - Overloading
+  - Sanity checks
 
 ex.
 
@@ -242,7 +249,7 @@ struct Student {
 };
 
 Student laura {70};  // 70, 0 , 0
-Student newKid; // 0, 0, 0 
+Student newKid; // 0, 0, 0
 ```
 
 **Note:** Every class comes with a **default constructor** (zero argument constructor)
@@ -305,7 +312,7 @@ Student mike {"Mike", 90, 70, 60};
 
 ```C++
 struct Student {
-    Student (string name, int assns, int mt, int final): 
+    Student (string name, int assns, int mt, int final):
         name{name}, assns{assns}, mt{mt}, final{final}  // Step 3
     {  // Step 4
 
@@ -313,7 +320,7 @@ struct Student {
 }
 ```
 
-MIL _must_ be used for fields that are 
+MIL _must_ be used for fields that are
 
 - Constants
 - References
@@ -322,6 +329,7 @@ MIL _must_ be used for fields that are
 In general, it should be used as much as possible.
 
 Careful: single argument constructors
+
 ```C++
 struct Node {
     Node(int data, Node *next = nullptr): ... {}
@@ -358,10 +366,10 @@ A method called the **destructor** (dtor) runs automatically
 
 - Built-in dtor: calls dtor on all fields that are objects
 - Object destruction protocol (in reverse declaration order):
-    1. Dtor body runs
-    2. Fields destructed (dtors called on fields that are objs) in reverse declaration order
-    3. (Later)
-    4. Space de-allocated
+  1. Dtor body runs
+  2. Fields destructed (dtors called on fields that are objs) in reverse declaration order
+  3. (Later)
+  4. Space de-allocated
 
 ```C++
 struct Node {
@@ -441,7 +449,7 @@ namespace {
 
 const size_t startSize = 1;
 
-CS246E::Vector::Vector(): 
+CS246E::Vector::Vector():
     n{0}, cap{startSize}, theVector{new int[cap]} {
 }
 
@@ -464,9 +472,10 @@ int main() {
     v.push_back(1);
     v.push_back(10);
     v.push_back(100);
-    v.itemAt(0) = 2; 
+    v.itemAt(0) = 2;
 }   // No dispose - destructor cleans v up
 ```
 
 ---
-[Linear Collections and Modularity <<](./problem_2.md) | [**Home**](../README.md) | [>> Copies](./problem_4.md) 
+
+[Linear Collections and Modularity <<](./problem_2.md) | [**Home**](../README.md) | [>> Copies](./problem_4.md)

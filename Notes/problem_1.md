@@ -1,9 +1,10 @@
-[**Home**](../README.md) | [>> Linear Collections and Modularity](./problem_2.md) 
+[**Home**](../README.md) | [>> Linear Collections and Modularity](./problem_2.md)
 
 # Problem 1: Program Input/Output
+
 **2017-09-07**
 
-- Read 2.2, 4.3 
+- Read 2.2, 4.3
 - running a program from the command line
 
 `./program-name` or `path/to/programe-name`
@@ -13,13 +14,15 @@
 Providing input: 2 ways
 
 1. `./program-name arg1 arg2 ... argn`
-    - args are written into the program's memory
-    - [code][n + 1 (argc)][arg1][arg2][...][argn] (argv) 
+
+   - args are written into the program's memory
+   - [code][n + 1 (argc)][arg1][arg2][...][argn] (argv)
 
 2. `./program-name`
-    - (Then type something)
-    - input comes through standard input stream (stdin)
-    - keyboard -> program -> stderr (never buffered) OR -> stdout (maybe buffered) -> screen
+
+   - (Then type something)
+   - input comes through standard input stream (stdin)
+   - keyboard -> program -> stderr (never buffered) OR -> stdout (maybe buffered) -> screen
 
 **Redirection**
 `./my-program < infile > outfile 2>errfile`
@@ -48,8 +51,8 @@ int main(int argc, char *argv[]) {
         for (int i = 1; i < argc; ++i) {
             FILE *f = fopen(argv[i], "r");
             echo(f);
-            fclose(f);   
-        }     
+            fclose(f);
+        }
     }
 
     return 0;  // Status code given to shell (echo $?)
@@ -57,6 +60,7 @@ int main(int argc, char *argv[]) {
 ```
 
 **note:**
+
 ```C
 argv[0] = program-name
 ...
@@ -84,8 +88,8 @@ _Can we write the `cat` program in C++?_
 
 - Already valid C++
 - The "C++" way
-    - Command-line args are the same as in C
-    - stdin/stdout: #include <iostream>
+  - Command-line args are the same as in C
+  - stdin/stdout: #include <iostream>
 
 ```C++
 #include <iostream>
@@ -107,6 +111,7 @@ These operators return cin/cout so they can be chained:
 From above: `std::cin >> x >> y;`
 
 ## File Access
+
 ```C++
 std::ifstream f{"name-of-file"};  // ofstream for output
 char c;
@@ -136,7 +141,7 @@ char c;
 ...
 ```
 
-**Note:** 
+**Note:**
 
 - No explicit calls to fopen/fclose
 - Initializing `f {"name-of-file"}` opens the file
@@ -177,6 +182,7 @@ Doesn't work, won't even compile!
 _No!_ - this is actually fine, ifstream is a **subtype** of istream
 
 Any ifstream can be treated as an istream
+
 - Foundational concept in OOP
 - details later
 
@@ -190,7 +196,9 @@ Compare:
 int x;
 scanf("%d", &x);
 ```
+
 vs
+
 ```C++
 int x;
 cin >> x;
@@ -205,7 +213,7 @@ C++ has another small pointer-like type
 
 ```C++
 int y = 10
-int &z = y; 
+int &z = y;
 ```
 
 - `z` is an **lvalue reference** to `y`
@@ -216,7 +224,7 @@ int &z = y;
 NOT `*z = 12`;
 `y` is now 12
 
-`int *p = &z;  // Gives the address of y`
+`int *p = &z; // Gives the address of y`
 
 In all cases, `z` acts as if it were `y`
 `z` is an **alias** ("another name for `y`")
@@ -228,9 +236,9 @@ lvalue references must be initialized to something that has an address
 
 - Cannot create a pointer to a reference: `int &*x;`
 - Read right to left:
-    - > x is a pointer to a reference of an int
+  - > x is a pointer to a reference of an int
 - However you can create a reference to a pointer: `int *&x = __;`
-- Create a reference to a reference: `int &&r = z;` (compiles but means something else) 
+- Create a reference to a reference: `int &&r = z;` (compiles but means something else)
 - Create an array of references: `int &r[3] = {...};`
 - You can use as function parameters:
 
@@ -322,19 +330,23 @@ void echo (istream &f) {
 ```
 
 To compile:
+
 - `g++ -std=c++14 -Wall mycat.cc -o mycat`
 - OR `g++14 mycat.cc -o mycat`
 - `./mycat`
 
 ## Separate compilation
+
 Put echo in its own module
 
 ### echo.h
+
 ```
 void echo (istream &f);
 ```
 
 ### echo.cc
+
 ```C++
 #include "echo.h"
 
@@ -344,6 +356,7 @@ void echo(istream &f) {
 ```
 
 ### main.cc
+
 ```C++
 #include <iostream>
 #include <fstream>
@@ -354,14 +367,14 @@ int main(...) {
     ...
     echo(f);
 }
-
 ```
 
-**Compiling separately:** 
+**Compiling separately:**
+
 - `g++14 echo.cc` (fails)
-    - linking error: no main
+  - linking error: no main
 - `g++14 main.cc` (fails)
-    - linking error: no echo
+  - linking error: no echo
 
 Correct:
 
@@ -375,12 +388,12 @@ Correct:
 Advantage:
 
 - Only have to recompile the parts you change, then relink (no so expensive)
-    - Ex. Change echo.cc -> recomplie echo.cc -> relink
+  - Ex. Change echo.cc -> recomplie echo.cc -> relink
 - However if you change echo.h, you must recompile `echo.cc` and `main.cc` and relink
-    - This is because both files include `echo.h`
+  - This is because both files include `echo.h`
 - What if we don't remember what we changed or what depends on what?
-    - Linux tool: `make`
-    - Create a **Makefile**
+  - Linux tool: `make`
+  - Create a **Makefile**
 
 ```C++
 mycat: main.o echo.o
@@ -410,10 +423,10 @@ How make works: list a dir in long form `ls -l`
 
 - Based on last modified time
 - Starting at the leaves of the dependency graph
-    - if the dependency is newer than the target, rebuild the target ... and so on, up to the root target
+  - if the dependency is newer than the target, rebuild the target ... and so on, up to the root target
 
 ex. echo.cc newer than echo.o -rebuild echo.o
-    echo.o newer than mycat - rebuild mycat
+echo.o newer than mycat - rebuild mycat
 
 Shortcuts - use variables:
 
@@ -431,7 +444,7 @@ echo.o: echo.cc echo.h
 
 .PHONY: clean
 
-clean: 
+clean:
     rm ${OBJECTS} ${EXEC}
 ```
 
@@ -440,7 +453,7 @@ clean:
 Writing the dependencies still hard (but compiler can help).
 
 - `g++14 -c -MMD echo.cc`: generates `echo.o, echo.d`
-- `cat echo.d` -> `echo.o echo.cc echo.h` 
+- `cat echo.d` -> `echo.o echo.cc echo.h`
 
 ```C
 CXX = g++
@@ -459,7 +472,8 @@ ${EXEC}: ${OBJECTS}
 
 clean:
     rm ${EXEC} ${OBJECTS} ${DEPENDS}
-
 ```
+
 ---
-[**Home**](../README.md) | [>> Linear Collections and Modularity](./problem_2.md) 
+
+[**Home**](../README.md) | [>> Linear Collections and Modularity](./problem_2.md)

@@ -1,6 +1,7 @@
 [<< Collecting Stats](./problem_26.md) | [**Home**](../README.md) | [>> Polymorphic Cloning](./problem_28.md)
 
 # Problem 27 - Resolving Method Overrides at Compile-Time
+
 **2017-11-23**
 
 **Recall:** Template Method Pattern
@@ -51,8 +52,9 @@ class GreenTurtle: public Turtle<GreenTurtle> {
 ```
 
 No virtual method methods, no vtable lookup
+
 - Drawback: no relationship between `RedTurtle` & `GreenTurtle`
-    - Can't store a mix of them in a container
+  - Can't store a mix of them in a container
 
 Can give `Turtle` a parent:
 
@@ -61,6 +63,7 @@ template<typename T> class Turtle: public Enemy { ... };
 ```
 
 Then can store `RedTurtles` and `GreenTurtles`
+
 - But then can't access the `draw` method
 - Could give Enemy a virtual `draw` method
 
@@ -72,7 +75,9 @@ class Enemy {
 ```
 
 But then there will be a vtable lookup
+
 - On the other hand, if `Turtle::draw` calls several would-be virtual helpers, could trade away several vtable lookups for one
 
 ---
+
 [<< Collecting Stats](./problem_26.md) | [**Home**](../README.md) | [>> Polymorphic Cloning](./problem_28.md)

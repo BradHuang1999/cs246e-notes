@@ -1,6 +1,7 @@
-[<< I want total control over vectors and lists](./problem_31.md) | [**Home**](../README.md) | [>> I want a (tiny bit) smaller vector class](./problem_33.md) 
+[<< I want total control over vectors and lists](./problem_31.md) | [**Home**](../README.md) | [>> I want a (tiny bit) smaller vector class](./problem_33.md)
 
 # Problem 32: A fixed-size object allocator
+
 **2017-11-29**
 
 A custom allocator can be fast.
@@ -9,10 +10,11 @@ A custom allocator can be fast.
 (aside - many many traditional allocators store the size of the block before the pointer so that the allocator knows how much space is allocated to that pointer.)
 
 **Fixed size:**
+
 - Saves space (no hidden size field)
 - Saves time (no hunting for a block of the right size)
 
-**Approach:** create a pool of memory  - an array large enough to hold `n` `T` objects.
+**Approach:** create a pool of memory - an array large enough to hold `n` `T` objects.
 
 When the client has a slot: `T` object
 
@@ -46,7 +48,7 @@ Allocation: from the front
               0   1   2   3         n-1
 ```
 
-Deallocation: 
+Deallocation:
 
 ```
 Free item 0
@@ -104,7 +106,7 @@ Use in a class:
 
 ```C++
 class Student final {
-        int assns, mt, final;     
+        int assns, mt, final;
         static fsAlloc<Student, SIZE> pool; // SIZE - how many you want
     public:
         ...
@@ -126,6 +128,7 @@ fsAlloc<Student, SIZE> Student::pool;
 ```
 
 _Example main:_
+
 ```C++
 int main() {
     Student *s1 = new Student;  // Uses custom allocator
@@ -137,19 +140,22 @@ int main() {
 
 **Q:** Where do `s1` and `s2` reside?
 **A:** Static memory (NOT the heap)
+
 - Could arrange for stack/heap memory
 
-**More notes:** 
+**More notes:**
+
 - We used a union to hold both `int *T` - wastes less space
 - We could have used a struct `[ next | T ]`
-    - Disadvantage: if you access a dangling `T` pointer, you can corrupt the linked list
-    ```C++
-    Student *s = new Student;
-    delete s;
-    s->setAssns(...);
-    ```
+  - Disadvantage: if you access a dangling `T` pointer, you can corrupt the linked list
+  ```C++
+  Student *s = new Student;
+  delete s;
+  s->setAssns(...);
+  ```
 - Lesson: following a dangling pointer can be VERY dangerous
 - With a struct, `next` is before the `T` object, so you have to work hard to corrupt it.
+
 ```C++
 reinterpret_cast<int *>(s)[-1] = ...
 ```
@@ -176,19 +182,21 @@ union SlotChar {
 ```
 
 Also:
+
 - Why store indices instead of pointers?
 - Smaller than pointers on this machine
 - So waste no memory as long as `T` >= size of an `int`
 - Would waste if `T` smaller than an `int`
 - Could use a smaller index than an `int`
 - could use a smaller index type, ex. `short`, `char`
-    - (as long as you don't want more items than the type can hold)
+  - (as long as you don't want more items than the type can hold)
 - Could make the index type a parameter of the template
 - `Student final` - fixed-size allocator - subclasses might be larger
-- Options: 
-    - Have no subclasses
-    - Check size, throw if it isn't the right size
-    - Derived class can have its own allocator
+- Options:
+  - Have no subclasses
+  - Check size, throw if it isn't the right size
+  - Derived class can have its own allocator
 
 ---
-[<< I want total control over vectors and lists](./problem_31.md) | [**Home**](../README.md) | [>> I want a (tiny bit) smaller vector class](./problem_33.md) 
+
+[<< I want total control over vectors and lists](./problem_31.md) | [**Home**](../README.md) | [>> I want a (tiny bit) smaller vector class](./problem_33.md)

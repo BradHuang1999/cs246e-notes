@@ -1,6 +1,7 @@
 [<< Polymorphic Cloning](./problem_28.md) | [**Home**](../README.md) | [>> Total Control](./problem_30.md)
 
 # Problem 29: Logging
+
 **2017-11-23**
 
 We want to encapsulate logging functionality and "add" it to any class.
@@ -44,7 +45,7 @@ template<typename T, typename Data> class Logger: public T {
         void loggedSet(Data x) {
             std::cout << "setting to" << x << std::endl;
             set(x); // No vtable overhead
-        } 
+        }
 };
 
 using BoxLogger = Logger<Box, int>;
@@ -59,7 +60,9 @@ b.loggedSet(4);
 Note: if `SpecialBox` is a subclass of `Box`, then `SpecialBox` has no relation to `Logger<Box, int>`. Nor is there any relationship between `Logger<SpecialBox, int>`, `Logger<Box, int>`.
 
 But with CRTP, `SpecialBox` is a subtype of `Logger<Box, int>`
+
 - Can specialize behaviour of virtual functions
 
 ---
+
 [<< Polymorphic Cloning](./problem_28.md) | [**Home**](../README.md) | [>> Total Control](./problem_30.md)

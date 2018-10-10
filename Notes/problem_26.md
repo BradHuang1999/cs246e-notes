@@ -1,9 +1,10 @@
 [<< I want an even faster vector](./problem_25.md) | [**Home**](../README.md) | [>> Resolving Method Overrides at Compile-Time](./problem_27.md)
 
 # Problem 26: Collecting Stats
+
 **2017-11-23**
 
-I want to know how many `Student`s I create. 
+I want to know how many `Student`s I create.
 
 ```C++
 class Student {
@@ -16,9 +17,10 @@ class Student {
 ```
 
 - `static` methods have no `this` parameter
-    - Thus not really a method, more like scoped function
+  - Thus not really a method, more like scoped function
 
 _`.cc`_
+
 ```C++
 int Student::count = 0; // must define the variable
 ```
@@ -52,15 +54,16 @@ class Student: count<Student> {
     public:
         Student(...): ...
         // accessors
-        using Count<Student>::getCount; // Make this function visible 
+        using Count<Student>::getCount; // Make this function visible
 }
 ```
 
 - **Private Inheritance**
-    - inherits `Count`'s implementation without creating an "is-a" relationship
-    - Members of  `Count` become private in `Student`
+  - inherits `Count`'s implementation without creating an "is-a" relationship
+  - Members of `Count` become private in `Student`
 
 Now we can easily add it to other classes:
+
 ```C++
 class Book:Count<Book> {
         ...
@@ -70,10 +73,13 @@ class Book:Count<Book> {
 ```
 
 Why is `Count` a template?
+
 - So that for each class `C`, `class C: Count<C>` creates a new unique, instantiation of `Count` for each `C`. This gives `C` its own counter vs. sharing one counter over all subclasses
 
 This technique (inheriting from a template specialized by yourself)
+
 - Looks weird, but happens enough to have its own name: **The Curiously Recurring Template Pattern (CRTP)**
 
 ---
+
 [<< I want an even faster vector](./problem_25.md) | [**Home**](../README.md) | [>> Resolving Method Overrides at Compile-Time](./problem_27.md)

@@ -1,7 +1,8 @@
 [Copies <<](./problem_4.md) | [**Home**](../README.md) | [>> I want a constant Vector](./problem_6.md)
 
 # Problem 5: Moves
-**2018-09-25**
+
+> **2018-09-25**
 
 Consider a function that intends to increment by one for all node values:
 
@@ -56,6 +57,7 @@ struct Node {
 ```
 
 Similarly:
+
 ```C++
 Node m;
 m = plusOne(n);  // assignment from temporary
@@ -71,7 +73,7 @@ struct Node {
         // need to destroy my old data
         // "Since you are about to die anyway, how about you take
         //   my old data with me?"
-        
+
         swap(data, other.data);     // Easy: swap without the copy
         swap(next, other.next);     // Same thing
 
@@ -102,9 +104,9 @@ struct Node {
 ```
 
 - Called unified assignment operator
-    - Pass ``other`` by value
-    - Invokes copy constructor if the argument is an lvalue
-    - Invokes move constructor (if there is one) if the argument is an rvalue
+  - Pass `other` by value
+  - Invokes copy constructor if the argument is an lvalue
+  - Invokes move constructor (if there is one) if the argument is an rvalue
 
 **Note:** copy/swap can be expensive, hand-coded operator may do less copying
 
@@ -191,29 +193,31 @@ Vector v = makeAVector();   // move ctor? copy ctor?
 
 Try in g++, just the basic constructor, not copy/move
 
-In some circumstances, the compiler is allowed to skip calling the copy/move constructors (but doesn't have to). 
+In some circumstances, the compiler is allowed to skip calling the copy/move constructors (but doesn't have to).
 
 `makeAVector()` writes its result directly into the space occupied by `v`, rather than copy/move it later.
 
 Ex.
+
 ```C++
 Vector v = Vector{};
 // Formally a basic construction and a copy/move construction
 //   Vector{} is a basic constructor
-// Here though, the compiler is *required* to elide the 
-//   copy/move, so basic constructor here only 
+// Here though, the compiler is *required* to elide the
+//   copy/move, so basic constructor here only
 
-Vector v = Vector{Vector{Vector{}}};    
+Vector v = Vector{Vector{Vector{}}};
 // Still one basic ctor only
 ```
 
 Ex.
-``` C++
+
+```C++
 void doSomething(Vector v) {...};
 // Pass-by-value - copy/move ctor
 
 doSomething(makeAVector());
-// Result of `makeAVector()` written directly into the 
+// Result of `makeAVector()` written directly into the
 //   param, there is no copy/move
 ```
 
@@ -230,6 +234,7 @@ If you really need all of the constructors to run:
 **In summary: Rule of 5 (Big 5)**
 
 If you need to customize any one of
+
 - Copy constructor
 - Copy assignment
 - Move constructor
@@ -241,4 +246,5 @@ then you usually need to customize all 5.
 From now on , we will assume that Node & Vector have the Big 5 defined.
 
 ---
+
 [Copies <<](./problem_4.md) | [**Home**](../README.md) | [>> I want a constant Vector](./problem_6.md)

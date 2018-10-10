@@ -1,6 +1,7 @@
 [<< A fixed-size object allocator](./problem_32.md) | [**Home**](../README.md)
 
 # Problem 33: I want a (tiny bit) smaller vector class
+
 **2017-11-30** Last class :'(
 
 **Currently:** `vector`/`vector_base` have an allocator field. Standard allocator is stateless (has no fields)
@@ -39,7 +40,7 @@ class vector: vector_base<T, Alloc> {   // private inheritance - no is-a relatio
         using vector_base<T, Alloc>::cap;
         using vector_base<T, Alloc>::v;
 
-        using Alloc:allocate;   // or say this->allocate 
+        using Alloc:allocate;   // or say this->allocate
         using Alloc:deallocate; // this->deallocate
     public:
         ... Use n , cap, v instead of vb.n, vb.cap, vb.v
@@ -47,6 +48,7 @@ class vector: vector_base<T, Alloc> {   // private inheritance - no is-a relatio
 ```
 
 `uninitalized_copy`, etc. - need to call construct/destroy
+
 - Simplest - let the take an allocator as a parameter
 
 ```C++
@@ -74,4 +76,5 @@ Remaining details - exercise
 C++ is easy because it is hard
 
 ---
+
 [<< A fixed-size object allocator](./problem_32.md) | [**Home**](../README.md)
