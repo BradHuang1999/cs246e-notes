@@ -1,14 +1,17 @@
 [I want a vector of Posns <<](./problem_12.md) | [**Home**](../README.md) | [>> Memory management is hard](./problem_14.md)
 
 # Problem 13: Less copying!
-**2017-10-04**
 
-**Before:** 
+> **2018-10-16**
+
+**Before:**
+
 ```C++
 void push_back(int n);
 ```
 
-**Now:** 
+**Now:**
+
 ```C++
 void push_back(T x) {   // (1) If T is an object, how many times is T being copied?
     increaseCap();
@@ -16,20 +19,23 @@ void push_back(T x) {   // (1) If T is an object, how many times is T being copi
 }
 ```
 
-If the arg is an lvalue:  
+If the arg is an lvalue:
+
 - (1) is a copy constructor
 - (2) is a copy constructor
 - 2 copies, we want 1
 
 If the arg is an rvalue:
+
 - (1) is a move constructor
 - (2) is a copy constructor
 - 1 copy, we want 0
 
 **fix:**
+
 ```C++
 void push_back(T x) {
-    increaseCap(); 
+    increaseCap();
     new(theVector + (n++)) T(std::move(x));
 }
 ```
@@ -40,6 +46,7 @@ void push_back(T x) {
 If `T` doesn't have a move constructor: 2 copies
 
 **Better:** take `T` by reference
+
 ```C++
 void push_back(const T &x) {    // No copy, no move
     increaseCap();
@@ -51,7 +58,7 @@ void push_back(T &&x) { // No copy, no move
     increaseCap();
     new(theVector + (n++)) T(std::move(x));
 }
-```    
+```
 
 **lvalue:** 1 copy  
 **rvalue:** 1 move
@@ -59,6 +66,7 @@ void push_back(T &&x) { // No copy, no move
 If no move constructor: 1 copy
 
 Now consider:
+
 ```C++
 Vector<Posn> v;
 v.push_back(Posn {3, 4});
@@ -69,6 +77,7 @@ v.push_back(Posn {3, 4});
 1. Destructor call on the temporary object
 
 Could eliminate (1) and (3) if we could get vector to create the object instead of the client
+
 - Pass constructor args to the vector and not the actual object
 - How? Soon, but first...
 
@@ -77,6 +86,7 @@ Could eliminate (1) and (3) if we could get vector to create the object instead 
 Consider: `std::swap` seems to work on all types
 
 **Implementation:**
+
 ```C++
 template<typename T> void swap(T &a, T&b) {
     T tmp{std::move(a)}
@@ -122,14 +132,13 @@ template<typename T> class vector {
 
 In this case, `...` in template actually represents a variable amount of arguments
 
-
 `Args` is a _sequence_ of type vars denoting the type of the actual args of `emplace_back`  
 `args` is a _sequence_ of program vars denoting the actual args of `emplace_back`
 
 ```C++
 vector<Posn> v;
 v.emplace_back(3, 4);
-``` 
+```
 
 **Problem:** args is being taken by value, can we take args by reference? (lvalue or rvalue reference?)
 
@@ -141,10 +150,12 @@ template<typename... Args> void emplace_back(Args&&... args) {
 ```
 
 Special rules here: `Args&&` is a **universal reference** (officially: **forwarding reference**)
+
 - Can point to an lvalue or an rvalue
 - Must have the form `T&&`, where `T` is the type arg being deduced for the current template function call
 
 Ex.
+
 ```C++
 template<typename T> class c {
     public:
@@ -184,4 +195,5 @@ template<typename... Args> void emplace_back(Args&&... args) {
 `std::forward` calls `std::move` if its argument is an rvalue reference, else does nothing
 
 ---
+
 [I want a vector of Posns <<](./problem_12.md) | [**Home**](../README.md) | [>> Memory management is hard](./problem_14.md)

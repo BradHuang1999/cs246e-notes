@@ -1,12 +1,17 @@
 [I want a vector of chars <<](./problem_10.md) | [**Home**](../README.md) | [>> I want a vector of Posns](./problem_12.md)
 
 # Problem 11: Better Initialization
-**2017-10-04**
+
+> **2018-10-11**
+
+Compare initializing an array and a vector:
 
 ```C++
-a[] = {1, 2, 3, 4, 5};  // Array    :)
+// Array    :)
+a[] = {1, 2, 3, 4, 5};
 
-vector<int> v;  // Vector   :(
+// Vector   :(
+vector<int> v;
 v.push_back(1);
 ⋮
 ```
@@ -15,12 +20,17 @@ Long sequence of push backs can be very clunky
 
 Goal: better initialization
 
+Consider:
+
 ```C++
 template<typename T> class vector {
     ⋮
     public:
         vector(): ...
-        vector(size_t n, T i = T{}): n {n}, cap {n == 0 ? 1 : n}, theVector{new T[cap]} {
+        vector(size_t n, T i = T{}):
+            n {n},
+            cap {n == 0 ? 1 : n},
+            theVector{new T[cap]} {
             for (size_t j = 0; j < n; ++j) {
                 theVector[j] = i;
             }
@@ -47,33 +57,40 @@ template <typename T> class vector {
     public:
         vector() ...;
         vector(size_t n, T i = T{}) ...
-        vector(std::initializer_list<T> init): 
-            n{init.size()}, cap{init.size()}, theVector{new T[cap]} {
+        vector(std::initializer_list<T> init):
+            n{init.size()},
+            cap{init.size()},
+            theVector{new T[cap]} {
                 size_t i = 0;
                 for (auto &t: init) theVector[i++] = t;
             }
 };
 ```
+
 ```C++
 vector<int> v {1, 2, 3, 4, 5};  // 1, 2, 3, 4, 5
-vector<int> v;  // Empty
-vector<int> v{5};   // 5
-vector<int> v{3, 4};    // 3, 4
+vector<int> v;                  // Empty
+vector<int> v{5};               // 5
+vector<int> v{3, 4};            // 3, 4
 ```
 
-Default constructors take precedence over initializer lists, which take precedence over other constructors
+Problem: the other constructor is not being called anymore
 
-To get the other constructor to run: **round bracket intialization**
+Default constructors take precedence over initializer_list constructors, which take precedence over other constructors
+
+To get the other constructor to run: **round bracket initialization**
 
 ```C++
-vector<int> v(5);   // 0, 0, 0, 0, 0
+vector<int> v(5);       // 0, 0, 0, 0, 0
 vector<int> v(3, 4);    // 4, 4, 4
 ```
 
 A note on cost: item in an initializer list are stored in contiguous memory (begin method returns a pointer)
+
 - So we are using one array to build another (2 copies in memory)
 
 Also note:
+
 - Initializer lists are meant to be immutable
 - Do not try to modify their contents
 - Do not use them as standalone data structures
@@ -103,9 +120,11 @@ template<typename T> class vector {
 ```C++
 vector<int> v;
 v.reserve(10);
-v.push_back(__);    // Can do 10 push_backs without needing to reallocate
+v.push_back(...);
+// Can do 10 push_backs without needing to reallocate
 ...
 ```
 
 ---
+
 [I want a vector of chars <<](./problem_10.md) | [**Home**](../README.md) | [>> I want a vector of Posns](./problem_12.md)
