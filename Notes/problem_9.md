@@ -61,12 +61,15 @@ class vector {
 - Client's options
 
 1. Do nothing
+
    ```C++
    vector v;
    v.push_back(0);
    v.at(1) // The exception will crash the program
    ```
+
 2. Catch it
+
    ```C++
    try {
        vector v;
@@ -77,7 +80,9 @@ class vector {
        // Do something
    }
    ```
+
 3. Let your caller catch it
+
    ```C++
    int f() {
        vector v;
@@ -92,6 +97,7 @@ class vector {
        }
    }
    ```
+
    - Exception will propogate through the callchain until a handler is found.
    - Called **unwinding** the stack
    - If no handler is found, program aborts (`std::terminate` gets called)

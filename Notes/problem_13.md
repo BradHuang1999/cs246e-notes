@@ -60,10 +60,9 @@ void push_back(T &&x) { // No copy, no move
 }
 ```
 
-**lvalue:** 1 copy  
-**rvalue:** 1 move
-
-If no move constructor: 1 copy
+- **lvalue:** 1 copy
+- **rvalue:** 1 move
+- **If no move constructor:** 1 copy
 
 Now consider:
 
@@ -73,15 +72,15 @@ v.push_back(Posn {3, 4});
 ```
 
 1. Constructor call to create the Posn object
-1. Copy or move constructor into the vector (depending on whether Posn has a move constructor)
-1. Destructor call on the temporary object
+2. Copy or move constructor into the vector (depending on whether Posn has a move constructor)
+3. Destructor call on the temporary object
 
 Could eliminate (1) and (3) if we could get vector to create the object instead of the client
 
 - Pass constructor args to the vector and not the actual object
 - How? Soon, but first...
 
-### A note on template functions
+## A note on template functions
 
 Consider: `std::swap` seems to work on all types
 
@@ -89,9 +88,12 @@ Consider: `std::swap` seems to work on all types
 
 ```C++
 template<typename T> void swap(T &a, T&b) {
-    T tmp{std::move(a)}
+    T tmp(std::move(a))
+    // a is about to be reassigned, so let's move its data
     a = std::move(b);
+    // b is about to be reassigned, so let's move its data
     b = std::move(tmp);
+    // tmp is garbage anyways, so let's move its data
 }
 ```
 
@@ -107,7 +109,7 @@ In general, only have to say `f<T>(...)` if `T` cannot be deduced from the args
 
 Type deduction for template args follows the same rules as type deduction for `auto`
 
-### Back to Vector passing constructor args
+## Back to Vector passing constructor args...
 
 - We don't know what types constructor args should have
 - `T` could be any class, could have several constructors
@@ -159,9 +161,12 @@ Ex.
 ```C++
 template<typename T> class c {
     public:
-        template<typename U> void g(U&& x); // Universal
-        template<typename U> void h(const U&& x);   // Not universal (because of const)
-        void j(T&& x);  // Not universal (not being deduced, T is already known)
+        template<typename U> void g(U&& x);
+        // Universal
+        template<typename U> void h(const U&& x);
+        // Not universal, just an rvalue reference (because of const)
+        void j(T&& x);
+        // Not universal (not being deduced, T is already known)
 };
 ```
 
