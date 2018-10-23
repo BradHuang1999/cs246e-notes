@@ -199,6 +199,10 @@ template<typename... Args> void emplace_back(Args&&... args) {
 
 `std::forward` calls `std::move` if its argument is an rvalue reference, else does nothing
 
+Now args is passed to T's ctor with lvalue/rvalue information preserved.
+
+The process is called `perfect forwarding`.
+
 ---
 
 [I want a vector of Posns <<](./problem_12.md) | [**Home**](../README.md) | [>> Memory management is hard](./problem_14.md)
