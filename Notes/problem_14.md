@@ -60,7 +60,7 @@ If a program cannot recover from an expression without corrupting its memory, wh
 What constitutes exception safety? 3 levels:
 
 1. **Basic guarantee** - once an exception has been handled, the program is in some valid state, no leaked memory, no corrupted data structures, all invariants are maintained.
-2. **Strong guarantee** - if an exception propogates out of a function `f`, then the state of the program will be as if `f` had not been called
+2. **Strong guarantee** - if an exception propagates out of a function `f`, then the state of the program will be as if `f` had not been called
    - `f` either succeeds completely or not at all.
 3. **Nothrow guarantee** - a function `f` offers the nothrow guarantee if `f` never emits an exceptions and _always_ accomplishes its purpose
 

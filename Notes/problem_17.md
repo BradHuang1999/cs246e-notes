@@ -80,7 +80,9 @@ Works over vector iterators, list iterators, or any kinds of iterators.
 
 C++ will instantiate a template function with any type that has the operations being used by the function.
 
-`Fn` can be any type that supports **function application**.
+> **2018-10-24**
+
+`Fn` can be any type that supports **function application**. Example:
 
 ```C++
 class Plus {
@@ -110,7 +112,7 @@ transform(v.begin(), v.end(), w.begin(), [](int n) { return n + 1 });
                                       // ^ "lambda"
 ```
 
-```
+```C
             param list
                |
 lambda: [...](...) mutable? noexcept? { ... }
@@ -118,7 +120,11 @@ lambda: [...](...) mutable? noexcept? { ... }
         capture list                    body
 ```
 
-semantics:
+- capture list - provides access to selected vars in the enclosing scope.
+- param list - parameters of the lambda function
+- If the lambda is declared mutable, then `operator()` is not const.
+
+Semantics:
 
 ```C++
 void f(T1 a, T2 b) {
@@ -126,7 +132,7 @@ void f(T1 a, T2 b) {
 }
 ```
 
-translated to:
+Translated to:
 
 ```C++
 void f (T1 a, T2 b) {
@@ -142,10 +148,6 @@ void f (T1 a, T2 b) {
 };
 ```
 
-If the lambda is declared mutable, then `operator()` is not const.
-
-- Capture list - provides access to selected vars in the enclosing scope.
-
----
+Note that one can only use `auto` to store a lambda function.
 
 [Insert/Remove in the middle <<](./problem_16.md) | [**Home**](../README.md) | [>> Heterogeneous Data](./problem_18.md)

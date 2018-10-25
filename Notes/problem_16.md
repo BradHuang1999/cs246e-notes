@@ -14,26 +14,19 @@ template<typename T> class vector {
     ...
     public:
         iterator insert(iterator posn, const T&x) {
+            ptrdiff_t offset = posn - begin();
+            // ptrdiff_t incase result is negative (in general)
             increaseCap();
-            // add new item to the end
-            // shuffle items down using move_if_no_execpt
-            return // iterator to point of insertion;
-        }
-}
-
-template<typename T> class vector {
-    ...
-    public:
-        iterator insert(iterator posn, const T&x) {
-            increaseCap();
-            ptrdiff_t offset = posn - begin(); // ptrdiff_t incase result is negative (in general)
             iterator newPosn = begin() + offset;
-            new(static_cast<void*>(end()) T(std::move(*(end() - 1)));
-            ++vb.n;     // add new item to end
+            new (end()) T(std::move(*(end() - 1)));
+            ++vb.n;
+            // add new item to end
             for (iterator it = end() - 1; it != Posn; --it) {
                 *it = std::move(*(it - 1));
             }
+            // shuffle items down using move_if_no_execpt
             *newPosn = x;
+            // iterator to point of insertion;
             return newPosn;
         }
     }
@@ -94,4 +87,4 @@ FYI: why `void pop_back()` instead of `T pop_back()`?
 
 ---
 
-[Is vector exception safe? << ](./problem_13.md) | [**Home**](../README.md) | [>> Abstraction over containers?](./problem_17.md)
+[Is vector exception safe? << ](./problem_15.md) | [**Home**](../README.md) | [>> Abstraction over containers?](./problem_17.md)

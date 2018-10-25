@@ -1,7 +1,8 @@
 [Abstraction over containers << ](./problem_17.md) | [**Home**](../README.md) | [>> I'm leaking!](./problem_19.md)
 
 # Problem 18 - Heterogenous Data
-**2017-10-19**
+
+> **2018-10-24**
 
 I want a mixture of types in my vector.
 
@@ -23,7 +24,7 @@ class MediaPlayer {
 
 What's available in C:
 
-**unions** 
+**unions**
 
 ```C
 union Media {Song s; Movie m};
@@ -40,7 +41,7 @@ void *nowPlaying;
 
 Even worse, can point to anything
 
-These are not type safe.
+Both options are not type safe - what can we do better?
 
 Items in a heterogeneous collection usually have something in common, ex. Provide a common interface.
 
@@ -65,6 +66,7 @@ class Book {    // Superclass or Base class
         // etc.
 };
 ```
+
 ```C++
 BOOK
 +--------+
@@ -75,19 +77,22 @@ BOOK
 | Length |
 +--------+
 ```
+
 Some books are special though
+
 ```C++
 class Text: public Book {   // Subclass or Derived class
         string topic;   // No need to mention title, etc. because it comes from book
     public:
-        Text(string title, string author, int length, string topic): 
-            Book{title, author, length}, 
+        Text(string title, string author, int length, string topic):
+            Book{title, author, length},
             topic{topic} {}
 
         bool isHeavy() const { return length > 500; }
         string getTopic() const { return topic; }
 };
 ```
+
 ```C++
 TEXT
 +--------+
@@ -100,6 +105,7 @@ TEXT
 | Topic  |
 +--------+
 ```
+
 ```C++
 class Comic: public Book {
         string hero;
@@ -112,6 +118,7 @@ class Comic: public Book {
         string getHero() const { return hero; }
 };
 ```
+
 ```C++
 COMIC
 +--------+
@@ -124,6 +131,7 @@ COMIC
 | Hero   |
 +--------+
 ```
+
 Subclasses inherit all members (fields & methods) from their superclass.  
 All three classes have `title`, `author`, and `length`, methods `getTitle`, `getAuthor`, `getLength`, `isHeavy`, ... except this doesn't work.
 
@@ -132,6 +140,7 @@ All three classes have `title`, `author`, and `length`, methods `getTitle`, `get
 **2 options:**
 
 1. _Use protected_
+
 ```C++
 class Book {
         string title, author;
@@ -143,43 +152,49 @@ class Book {
 ```
 
 2. _Call public method_
+
 ```C++
 bool Text::isHeavy() const { return getLength() > 500; }
 ```
 
 Recommended option is 2.
+
 - You have no control over what subclasses might do
 - Protected weakens encapsulation (cannot enforce invariants on protected fields)
 
-If you want subclasses to have priviledged access
+If you want subclasses to have privileged access
+
 - Keep fields private
 - Provide protected `get_` and `set_` methods
 
 ## Updated object creation/destruction protocols
 
 **Creation:**
+
 1. Space is allocated
 1. Superclass part is constructed
 1. Fields constructed in declaration order
 1. Constructor body runs
 
 **Destruction:**
+
 1. Destructor body runs
 1. Fields are destructed in reverse declaration order
 1. Superclass part destructed
 1. Space deallocated
 
-Must revist everything to see the effect of inheritance
+Must revisit everything to see the effect of inheritance
 
 ## Type compatibility
+
 `Text`s and `Comic`s are special kinds of `Book`s - should be usable in place of `Book`s
 
 ```C++
-Book b = Comic{___, ___, 75, ___};
+Book b = Comic{..., ..., 75, ...};
 
 // method calls:
 b.isHeavy();
-``` 
+```
 
 This is a light `Book`, but a heavy `Comic`. What does this return? -> Returns `false`
 If `b` is a `Comic`, why is it acting like a `Book`? -> Because it is a `Book`!
@@ -199,21 +214,26 @@ Book b |    |  = Comic {...} |    |
                              +----+
 ```
 
-Keeps only the `Book` part - `Comic` part is "chopped off" - **slicing**
+As we only set aside enough space for a `Book`, we can only keep the `Book` part of the object
+
+- `Comic` part is "chopped off"
+- a phenomenon called **slicing**
 - So it really is just a `Book` now
 - Therefore it is `Book::isHeavy` that runs
 
 Slicing happens even if superclass & subclass are the same size.
 
-Similarily, if you want to collect your books:
+Similarly, if you want to collect your books:
 
 ```C++
 vector<Book> library;
-library.push_back(Comic {...}); 
+library.push_back(Comic {...});
 ```
-only the `Book` part will be pushed - _not_ a heterogeneous collection.
+
+Only the `Book` part will be pushed - _not_ a heterogeneous collection.
 
 Also note:
+
 ```C++
 void f(Book book[]);
 Comic comics[] = {...};
@@ -229,11 +249,11 @@ Slicing does not happen through pointers
 So if I do this instead:
 
 ```C++
-Book *p = new Comic{___, ___, 75, ___};
+Book *p = new Comic{..., ..., 75, ...};
 
 p
-+--+     +---+   
-|  | --> |   |  
++--+     +---+
+|  | --> |   |
 +--+     +---+
          |   |
          +---+
@@ -283,7 +303,7 @@ library.push_back(new Book{...});
 library.push_back(new Comic{...});
 
 // Even better version
-vector<unique_ptr<Book>> library; 
+vector<unique_ptr<Book>> library;
 
 int howManyHeavy(const vector<Book*> &v) {
     int count = 0;
@@ -302,9 +322,11 @@ Correct version of `isHeavy` is always chosen, even though we don't know what's 
 This is called **polymorphism**.
 
 How do virtual methods "work" and why are they more expensive? (though not _significantly_ more expensive)
+
 - Implementation dependent, but the following is most common:
 
-**Vtables** (only contain virutal methods)
+**Vtables** (only contain virtual methods)
+
 ```C++
 (1)
 +---------+
@@ -363,21 +385,24 @@ Comic b2;
 
 Non-virutal methods are just ordinary function calls.  
 If there is at least one virtual method:
+
 - Compiler creates a table of function pointers:
-    - One per class
-    - The vtable
-- Each object contains a pointer to its class' vtable 
-    - the `vptr`
+  - One per class
+  - The vtable
+- Each object contains a pointer to its class' vtable
+  - the `vptr`
 - Calling the virtual method => follow the `vptr` to the vtable, follow the function pointer to the correct function
 
 - `vptr` is often the "first" field
-    - So that a subclass object still looks like a superclass object
-    - So the program knows where the `vptr` is
-    - If there are no virtual methods, `vptr` does not exist
+  - So that a subclass object still looks like a superclass object
+  - So the program knows where the `vptr` is
+  - If there are no virtual methods, `vptr` does not exist
 
 So virtual methods incur a cost in
+
 - time (Extra pointer derefs)
 - space (Each object gets a `vptr`)
 
 ---
+
 [Abstraction over containers << ](./problem_17.md) | [**Home**](../README.md) | [>> I'm leaking!](./problem_19.md)
