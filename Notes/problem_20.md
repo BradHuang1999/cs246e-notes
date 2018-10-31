@@ -1,7 +1,8 @@
 [I'm leaking! << ](./problem_17.md) | [**Home**](../README.md) | [>> The copier is broken](./problem_21.md)
 
 # Problem 20 - I want a class with no objects
-**2017-10-26**
+
+> **2018-10-30**
 
 ```C++
 class Student {
@@ -42,17 +43,20 @@ Abstract classes cannot be instantiated:
 Student s;  // ERROR
 Student *s = new Student;   // ERROR
 ```
+
 Can point to instances of **concrete classes** (non-abstract classes):
 
 ```C++
 Student *s = new RegularStudent;
 ```
 
-Subclasses of abstract classes are abstract are abstract, unless they implement every pure virtual method in the superclass.
+Subclasses of abstract classes are also abstract, unless they implement every pure virtual method in the superclass.
 
-Abstract classes 
+Abstract classes
+
 - used to organize concrete classes
-- can contain common fields and default methods (not need to be overrided)
+- can contain common fields and default methods (not need to be overridden)
 
 ---
+
 [I'm leaking! << ](./problem_17.md) | [**Home**](../README.md) | [>> The copier is broken](./problem_21.md)

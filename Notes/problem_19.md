@@ -1,7 +1,8 @@
 [Heterogeneous Data << ](./problem_18.md) | [**Home**](../README.md) | [>> I want a class with no objects](./problem_20.md)
 
 # Problem 19 - I'm leaking!
-**2017-10-26**
+
+> **2018-10-30**
 
 ```C++
 class X {
@@ -31,16 +32,18 @@ class X {
         ...
     public:
         ...
-        virtual ~X() { delete[] a; }   
+        virtual ~X() { delete[] a; }
 };
 ```
 
 Now there is no more leak.
 
-__Always__ make the destructor virtual in classes that are meant to be superclasses, even if the destructor does nothing.
+**Always** make the destructor virtual in classes that are meant to be superclasses, even if the destructor does nothing.
+
 - You never know what the subclass' destructor might do, so you need to make sure its destructor gets called
 
 If a class is not meant to be a superclass, then no need to incur the cost of virtual methods needlessly/
+
 - Leave the destructor non-virtual
 
 ```C++
@@ -49,7 +52,8 @@ class X final { // Cannot be subclassed
 };
 ```
 
-Like `override`, `final` is another contextual keyword (right before the brace). 
+Like `override`, `final` is another contextual keyword (right before the brace).
 
 ---
+
 [Heterogeneous Data << ](./problem_18.md) | [**Home**](../README.md) | [>> I want a class with no objects](./problem_20.md)

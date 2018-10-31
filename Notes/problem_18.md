@@ -349,7 +349,7 @@ So when we create two `Book`s `b1`, `b2`, and a `Comic b2`:
 Book b1;
 
 +--------+
-| vptr   | -> (1)
+|  vptr  | -> (1)
 +--------+
 | Title  |
 +--------+
@@ -361,7 +361,7 @@ Book b1;
 Book b2;
 
 +--------+
-| vptr   | -> (1)
+|  vptr  | -> (1)
 +--------+
 | Title  |
 +--------+
@@ -373,7 +373,7 @@ Book b2;
 Comic b2;
 
 +--------+
-| vptr   | -> (2)
+|  vptr  | -> (2)
 +--------+
 | Title  |
 +--------+
@@ -383,7 +383,7 @@ Comic b2;
 +--------+
 ```
 
-Non-virutal methods are just ordinary function calls.  
+Non-virtual methods are just ordinary function calls.  
 If there is at least one virtual method:
 
 - Compiler creates a table of function pointers:
