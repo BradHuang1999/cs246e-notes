@@ -2,15 +2,16 @@
 
 # A Big Unit on Object Oriented Design
 
-**2017-11-02**
+> **2018-11-01**
 
-**System Modelling - UML**
+## System Modelling - UML
 
 - Unified Modelling Language
+
   - Make ideas easy to communicate
   - Aid design discussions
 
-<pre>
+```C
                                 +---------------------+
                                 |BOOK                 | - Class Name [italics = absract]
                                 +---------------------+
@@ -21,33 +22,35 @@
                                 |+ getTitle: String   |
                                 |+ getAuthor: String  | - Methods (optional) [italics = virtual]
                                 |+ getLength: Integer |
-                                |+ <em>isHeavy:</em> Boolean   | 
+                                |+ isHeavy: Boolean   |
                                 +---------------------+
                                            ^
                                            |
                                            | - (is-a relationship: inheritance)
                                            |
-                   +-----------------------+--------------------------+
-                   |                                                  |
-        +---------------------+                             +---------------------+
-        |Text                 |                             |Comic                | 
-        +---------------------+                             +---------------------+
-        |- topic: String      |                             |- hero: String       |
-        +---------------------+                             +---------------------+
-        |+ getTopic: String   |                             |+ getTopic: String   |
-        |+ isHeavy: Boolean   |                             |+ isHeavy: Boolean   | 
-        +---------------------+                             +---------------------+ 
-</pre>
+                   +-----------------------+-----------------------+
+                   |                                               |
+        +---------------------+                          +---------------------+
+        |Text                 |                          |Comic                |
+        +---------------------+                          +---------------------+
+        |- topic: String      |                          |- hero: String       |
+        +---------------------+                          +---------------------+
+        |+ getTopic: String   |                          |+ getTopic: String   |
+        |+ isHeavy: Boolean   |                          |+ isHeavy: Boolean   |
+        +---------------------+                          +---------------------+
+```
 
 - `-` private
 - `#` protected
 - `+` public
 
-<pre>
-+-----+   m +-------+
-| Car |◆--->| Motor |
-+-----+   2 +-------+
-</pre>
+> **2018-11-06**
+
+```C
++-----+      m +-------+
+| Car |◆------>| Motor |
++-----+      2 +-------+
+```
 
 - "Owns-a" relationship (composition)
 - Means the motor is part of the car
@@ -83,79 +86,103 @@ If you need true shared ownership - we'll see later.
 - **Coupling**
 
   - How strongly different modules depend on each other
+
   - **Low:**
+
     - Function calls with params/results of basic type
     - Function calls with array/struct params
     - Modules affect each other's control flow
     - Modules share global data
+
   - **High:**
+
     - Modules access each other's implementation (friends)
+    - Changes to a module affect other modules
+    - Harder to reuse individual modules
+    - Ex. `function whatIsIt(dynamic_cast)` tightly coupled to the `Book` hierarchy, must change this function if you create another `Book` subclass
+
   - I can achieve perfect coupling by putting everything in one class, so there must be a balancing force
 
-- **Cohesian**
+- **Cohesion**
 
   - How closely are the elements of a module related to each other
+
   - **Low:**
+
     - Arbitrary grouping (eg. `<utility>`)
     - Common theme, otherwise unrelated, maybe some common base code (eg. `<algorithm>`)
     - Elements manipulate state over the lifetime of an object
       - Ex. open/read/close files
     - Elements pass data to each other
+    - Poorly organized code, hard to understand and maintain
+
   - **High:**
-    - elements operate to perform exactly one task
-  - I can achieve perfect cohesian by putting each method into its own class, but then they'll all depend on each other (high coupling).
 
-- **High coupling**
+    - Elements operate to perform exactly one task
 
-  - Changes to a module affect other modules
-  - Harder to reuse individual modules
-  - Ex. `function whatIsIt(dynamic_cast)` tightly coupled to the `Book` hierachy, must change this function if you create another `Book` subclass
+  - I can achieve perfect cohesion by putting each method into its own class, but then they'll all depend on each other (high coupling).
 
-- **Low Cohesian**
-  - Poor organized code, hard to understand and maintain
-- We want high cohesian and low coupling
+- We want high cohesion and low coupling
 
 ## SOLID principles of OO Design
 
 - **Single Responsibility Principle (SRP)**
 
   - A class should only have one reason to change
+
   - i.e. a class should do one thing, not several
-  - Any change to the problem spec requires a change to the program
-  - If changes to >= 2 different parts of the spec cause changes to the same class, SRP is violated
+
+    - Any change to the problem spec requires a change to the program
+    - If changes to `>= 2` different parts of the spec cause changes to the same class, SRP is violated
+
   - Ex. Don't let you (main) classes print things
+
     - Consider:
+
     ```C++
     class ChessBoard {
         std::cout << "Your move"
     };
     ```
+
     - Bad design, inhibits code reuse
+
     - What if you want a version of your program that:
+
       - Communicates over different streams (file/network)
       - Works in another language?
       - Uses graphics instead of text?
+
     - Major changes to `ChessBoard` class, instead of reuse
+
     - Violates SRP, must change the class if there is any specification for:
+
       - Game rules
       - Strategy
       - Interface
       - Etc.
-    - Low cohesian
-    - Split these up
-    - One modules (not main! can't reuse main) responsible for comunnication
+
+    - Low cohesion
+
+    - Solution: split these up
+
+      - One module (not main! can't reuse main) responsible for communication
       - If a class wants to say something, do it via parameters/results/exceptions
       - Pass info to communications object and let it do the talking
+
     - On the other hand - specifications that are unlikely to change may not need their own class - avoid needless complexity
+
       - Judgement call
 
 - **Open/Closed Principle (OCP)**
 
   - Classes/modules/functions/etc. should be open for extension + closed for modification
-  - Changes in a program's behaviour should happen by writing new code, not by changing old code
+
+  - Changes in a program's behavior should happen by writing new code - extending functionality - but not by changing old code
+
   - Ex.
 
-    ```
+    ```C
     +-----------+     +---------+
     | Carpenter |◆--->| Handsaw |
     +-----------+     +---------+
@@ -164,7 +191,7 @@ If you need true shared ownership - we'll see later.
     - What if a carpenter buys a table saw
     - This design is not open for extension (must change carpenter code)
 
-    ```
+    ```C
     +-----------+     +-----+
     | Carpenter |◆--->| Saw |
     +-----------+     +-----+
@@ -178,31 +205,40 @@ If you need true shared ownership - we'll see later.
     ```
 
   - Also note: `countHeavy` function:
+
     ```C++
-    int countHeavy(const vector<Book *> &v) {
+    int countHeavy(const vector<Book*> &v) {
         int count = 0;
         for (auto &p: v)
             if (p->heavy()) ++ count;
         return count;
     }
     ```
-  - vs. `whatIsIt`, when we used dynamic casting (not closed for modiciation)
+
+  - vs. `whatIsIt`, when we used dynamic casting (not closed for modification)
+
   - **Note:** can't really be 100% closed, some changes may require source modification
     - Plan for the _most likely_ changes and make your code closed with respect to those changes
 
 - **Liskov Substitution Principle (LSP)**
 
   - Simply put: public inheritance must indicate an "IS-A" relationship
+
   - But there's more to it: If `B` is a subtype (subclass) of `A`, then we should be able to use an object `b` of type `B` in any context that requires an object of type `A` _without affecting the correctness of the program (\*)_
+
   - C++'s inheritance rules already allow us to use subclass objects in place of superclass objects
+
   - (\*) Very important point: a program should "not be able to tell" if it is using a superclass object or a subclass object
+
     - Formally: if an invariant `I` is true of class `A`, then it is true of class `B`
     - If an invariant `I` is true of method `A::f`, and `B::f` overrides `A::f`, then `I` must hold for `B::f`
     - If `A::f` has a precondition `P` and a postcondition `Q`, then `B::f` must have a precondition `P' <= P` and a post condition `Q' => Q`
     - If `A::f` and `B::f` behave differently, the difference in behaviour must fall within what is allowed by the program's correctness specification
+
   - Ex.
 
     1. **Contravariance Problem**
+
        - Arises anytime you have a binary operator (ie. a method with an "other" parameter) of the same type as `*this`
          ```C++
          class Shape {
@@ -232,6 +268,7 @@ If you need true shared ownership - we'll see later.
            - `dynamic_cast<Circle &>(other);`: is `other` a `Circle` or a subclass of `Circle`
            - `typeid(other) == typeid(Circle)`: is `other` percisely a `Circle`?
            - `typeid` returns an object of type `typeinfo`
+
     2. Is a square a rectangle?
 
        - A square has all the properties of a rectangle
