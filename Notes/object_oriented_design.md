@@ -220,6 +220,8 @@ If you need true shared ownership - we'll see later.
   - **Note:** can't really be 100% closed, some changes may require source modification
     - Plan for the _most likely_ changes and make your code closed with respect to those changes
 
+> **2018-11-07**
+
 - **Liskov Substitution Principle (LSP)**
 
   - Simply put: public inheritance must indicate an "IS-A" relationship
@@ -239,107 +241,119 @@ If you need true shared ownership - we'll see later.
 
     1. **Contravariance Problem**
 
-       - Arises anytime you have a binary operator (ie. a method with an "other" parameter) of the same type as `*this`
-         ```C++
-         class Shape {
-             public:
-                 virtual bool operator==(const Shape &other) const;
-                 ...
-         };
-         class Circle: public Shape {
-             public:
-                 bool operator==(const Circle &other) const override; // (*)
-         }
-         ```
-       - (\*) violates the Liskov Substitution
-         - A `Circle` _is_ a `Shape`
-         - A `Shape` can be compared with _any_ other `Shape`
-         - Therefore a `Circle` can be compared with _any_ other `Shape`
-         - C++ will flag this problem with a compiler error
-         - **FIX:**
-           ```C++
-           bool Circle::operator==(const Shape &other) const {
-               if (typeid(other) != typeid(Circle)) return false;
-               const Circle &other = static_cast<const Circle &>(other);
-               // Compare fields of other with fields of *this;
-           }
-           ```
-         - `dynamic_cast` vs `typeid`
-           - `dynamic_cast<Circle &>(other);`: is `other` a `Circle` or a subclass of `Circle`
-           - `typeid(other) == typeid(Circle)`: is `other` percisely a `Circle`?
-           - `typeid` returns an object of type `typeinfo`
+    - Arises anytime you have a binary operator (ie. a method with an "other" parameter) of the same type as `*this`
 
-    2. Is a square a rectangle?
+      ```C++
+      class Shape {
+          public:
+              virtual bool operator==(const Shape &other) const;
+              ...
+      };
+      class Circle: public Shape {
+          public:
+              bool operator==(const Circle &other) const override; // (*)
+      }
+      ```
 
-       - A square has all the properties of a rectangle
-         ```C++
-         class Rectangle {
-             private:
-                 int length, width;
-             public:
-                 Rectangle(___);
-                 int getLength() const;
-                 virtual void setLength(int);
-                 int getWidth() const;
-                 virtual void setWidth(int);
-                 int area() const { return length * width; }
-         };
-         ```
-         ```C++
-         class Square: public Rectangle {
-             public:
-                 Square(int side): Rectangle(side, side) {}
-                 void setLegnth(int l) override {
-                     Rectangle::setLength(l);
-                     Rectangle::setWidth(l);
-                     // length == width in a square
-                 }
-                 void setWidth(int w) { ... } // Similar
-         };
-         ```
-         ```C++
-         int f(Rectangle &r) {
-             r.setLength(10);
-             r.setWidth(20);
-             return r.area();  // Expect 200
-         }
-         ```
-         ```C++
-         Square s{1};
-         f(s);   // 400
-         ```
-       - `Rectangle`s have the property that their length and width can vary independently; `Square`s do not. So this violates LSP
-       - On the other hand, an immutable `Square` could substitute for an immutable `Rectangle`
-       - What can be done:
-         <pre>
-                                               +-------+
-                                               | Shape |
-                                               +-------+
-                                                   ^
-                                                   |
-                                                   |
-                                 +-----------------+------------- ...
-                                 |                           
-             +--------------------------+
-             | <em>RightAngledQuadrilateral</em> |
-             +--------------------------+
-                                  ^
-                                  |
-                         +--------+----------+
-                         |                   |
-                    +-----------+       +--------+
-                    | Rectangle |       | Square |
-                    +-----------+       +--------+
+    - (\*) violates the Liskov Substitution
 
-       </pre>
+      - A `Circle` _is_ a `Shape`
+      - A `Shape` can be compared with _any_ other `Shape`
+      - Therefore a `Circle` can be compared with _any_ other `Shape`
+      - C++ will flag this problem with a compiler error
+      - **FIX:**
+
+        ```C++
+        bool Circle::operator==(const Shape &other) const {
+            if (typeid(other) != typeid(Circle)) return false;
+            const Circle &other = static_cast<const Circle &>(other);
+            // Compare fields of other with fields of *this;
+        }
+        ```
+
+      - `dynamic_cast` vs `typeid`
+        - `dynamic_cast<Circle &>(other);`: is `other` a `Circle` or a subclass of `Circle`
+        - `typeid(other) == typeid(Circle)`: is `other` percisely a `Circle`?
+        - `typeid` returns an object of type `typeinfo`
+
+    1. Is a square a rectangle?
+
+    - A square has all the properties of a rectangle
+
+    ```C++
+    class Rectangle {
+        private:
+            int length, width;
+        public:
+            Rectangle(...);
+            int getLength() const;
+            virtual void setLength(int);
+            int getWidth() const;
+            virtual void setWidth(int);
+            int area() const { return length * width; }
+    };
+    ```
+
+    ```C++
+    class Square: public Rectangle {
+        public:
+            Square(int side): Rectangle(side, side) {}
+            void setLength(int l) override {
+                Rectangle::setLength(l);
+                Rectangle::setWidth(l);
+                // length == width in a square
+            }
+            void setWidth(int w) { ... } // Similar
+    };
+    ```
+
+    ```C++
+    int f(Rectangle &r) {
+        r.setLength(10);
+        r.setWidth(20);
+        return r.area();  // Expect 200
+    }
+    ```
+
+    ```C++
+    Square s{1};
+    f(s);   // 400
+    ```
+
+    - `Rectangle`s have the property that their length and width can vary independently; `Square`s do not. So this violates LSP
+    - On the other hand, an immutable `Square` could substitute for an immutable `Rectangle`
+    - What can be done:
+
+      ```C
+                                        +-------+
+                                        | Shape |
+                                        +-------+
+                                            ^
+                                            |
+                                            |
+                          +-----------------+
+                          |
+            +--------------------------+
+            | RightAngledQuadrilateral |        ...
+            +--------------------------+
+                         ^
+                         |
+              +----------+----------+
+              |                     |
+         +-----------+         +--------+
+         | Rectangle |         | Square |
+         +-----------+         +--------+
+      ```
 
     - Constraining what subclasses can do:
+
       ```C++
       class Turtle {
           public:
               virtual void draw() = 0;
       };
       ```
+
       ```C++
       class RedTurtle: public Turtle {
           public:
@@ -350,6 +364,7 @@ If you need true shared ownership - we'll see later.
               }
       };
       ```
+
       ```C++
       class GreenTurtle: public Turtle {
           public:
@@ -360,8 +375,10 @@ If you need true shared ownership - we'll see later.
               }
       };
       ```
+
     - Code duplication!
     - How can we ensure that overrides of `draw()` will always do these things?
+
       ```C++
       class Turtle {
           public:
@@ -376,20 +393,24 @@ If you need true shared ownership - we'll see later.
               void drawFeet();
       };
       ```
+
       ```C++
       class RedTurtle: public Turtle {
           void drawShell() override { ... };
       };
       ```
+
       ```C++
       class GreenTurtle: public Turtle {
           void drawShell() override { ... };
       };
       ```
+
     - Subclasses cannot control the steps of drawing a turtle, not the drawing of head + feet
     - Can only control the drawing of a shell (called the **Template Method Pattern**)
 
   - Extension: **Non-Virtual Interface (NVI) Idiom**
+
     - `public virtual` methods are simultaneously:
       - Part of a class' interface
         - Pre/post conditions
@@ -398,13 +419,16 @@ If you need true shared ownership - we'll see later.
     - All virtual methods should be private
     - All public methods should be non-virtual
     - Ex. Non-NVI class
+
       ```C++
       class DigitalMedia {
           public:
               virtual void play() = 0;
       };
       ```
+
     - Now with NVI
+
       ```C++
       class DigitalMedia {
           public:
@@ -415,8 +439,10 @@ If you need true shared ownership - we'll see later.
               virtual void doPlay() = 0;
       };
       ```
+
       - In the future, can add before/after code
         - Ex. call `checkCopyright()` before, call `updatePlayCount()` afterwards
+
     - Generalizes the Template Method Pattern
     - Puts every virtual method function inside a template method
 
@@ -425,6 +451,7 @@ If you need true shared ownership - we'll see later.
   - Many small interfaces is better than one large interface
   - If a class has many functionalities, each client of the class should only see the functionality that it needs
   - Ex. Video Game (will ignore NVI to keep example short)
+
     ```C++
     class Enemy {
         public:
@@ -432,49 +459,59 @@ If you need true shared ownership - we'll see later.
             virtual void draw();    // Needed by UI'
     };
     ```
+
     ```C++
     class UI {
         vector<Enemy *> v;
     };
     ```
+
     ```C++
     class Battlefield {
         vector<Enemy *> v;
     };
     ```
+
     - If we need to change the drawing interface, `Battlefield` must recompile for no reason
     - Creates needless coupling between `UI` and `Battlefield`
     - One solution: **Multiple Inheritance**
+
     ```C++
     class Enemy: public Draw, public Combat {};
     ```
+
     ```C++
     class Draw {
         public:
             virtual void draw() = 0;
     };
     ```
+
     ```C++
     class UI {
         vector<Draw *> v;
     };
     ```
+
     ```C++
     class Combat {
         public:
             virtual void strike() = 0;
     }
     ```
+
     ```C++
     class Battlefield {
         vector<Combat *> v;
     }
     ```
+
     - Example of the **Adapter Pattern**
+
   - General use of the Adapter Pattern: when a class provides an interface different from the one you need
   - Ex.
 
-    ```
+    ```C
     +------------------+        +----------------+
     | Needed Interface |        | Provided Class |
     +------------------+        +----------------+
@@ -721,9 +758,9 @@ If you need true shared ownership - we'll see later.
           </pre>
         - Sequence of calls:
           1. `Subject`'s state changes
-          1. `Subject::notifyObservers` (either by the `Subject` itself OR by some external controller)
+          2. `Subject::notifyObservers` (either by the `Subject` itself OR by some external controller)
              - Calls each `Observer`'s `notify`
-          1. Each `Observer` calls `concreteSubject::getState` to query the state + react accordingly
+          3. Each `Observer` calls `concreteSubject::getState` to query the state + react accordingly
 
 ## Some More Design Patterns
 
