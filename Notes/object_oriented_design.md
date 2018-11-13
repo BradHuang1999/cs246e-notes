@@ -273,7 +273,7 @@ If you need true shared ownership - we'll see later.
 
       - `dynamic_cast` vs `typeid`
         - `dynamic_cast<Circle &>(other);`: is `other` a `Circle` or a subclass of `Circle`
-        - `typeid(other) == typeid(Circle)`: is `other` percisely a `Circle`?
+        - `typeid(other) == typeid(Circle)`: is `other` precisely a `Circle`?
         - `typeid` returns an object of type `typeinfo`
 
     1. Is a square a rectangle?
@@ -456,7 +456,7 @@ If you need true shared ownership - we'll see later.
     class Enemy {
         public:
             virtual void strike();  // Needed by game logic
-            virtual void draw();    // Needed by UI'
+            virtual void draw();    // Needed by UI
     };
     ```
 
@@ -530,7 +530,7 @@ If you need true shared ownership - we'll see later.
 
   - _Detour:_ Issues with multiple inheritance
 
-    ```
+    ```C
     +------+        +------+
     |  A1  |        |  A2  |
     +------+        +------+
@@ -545,7 +545,7 @@ If you need true shared ownership - we'll see later.
              +-----+
     ```
 
-    ```
+    ```C
              +-----+
              |  A  |
              +-----+
@@ -580,9 +580,9 @@ If you need true shared ownership - we'll see later.
     class C: virtual public A { ... };
     ```
   - Now `d.a()` is no longer ambiguous
-  - Ex. iostream hiearchy
+  - Ex. iostream hierarchy
 
-    ````
+    ```C
                         ios_base
                            |
                            |
@@ -591,176 +591,201 @@ If you need true shared ownership - we'll see later.
                  /                  \
                 /                    \
                /                      \
-           istream -------------.    ostream----ofstream
+           istream -------------.    ostream ---- ofstream
           /       \              \    /    \
          /         \              \  /      ostringstream
-        /           \              iostream
-       /             \                |    \
-      /               \               |     \
-     /                 \              |      \
-    ifstream       iostringstream      fstream  stringstream
-     ```
-    ````
+        /           \            iostream
+       /             \             |    \
+      /               \            |     \
+     /                 \           |      \
+    ifstream  iostringstream   fstream  stringstream
+    ```
 
-  - _Problem:_ How will a class like `D` be laid out in memory (implementation specific)
-    - Consider:
-    ```C++
-    +----------+    <-- Should look like an A*, B*, C*, D*
-    |   vptr   |
-    +----------+
-    | A fields |
-    +----------+
-    | B fields |
-    +----------+
-    | C fields |
-    +----------+
-    | D fields |
-    +----------+
-    ```
-  - What does `g++` do?
-    ```C++
-    +----------+
-    |   vptr   |
-    +----------+
-    | B fields |
-    +----------+
-    |   vptr   |
-    +----------+
-    | C fields |
-    +----------+
-    |   vptr   |
-    +----------+
-    | D fields |
-    +----------+
-    |   vptr   |
-    +----------+
-    | A fields |
-    +----------+
-    ```
-  - `B` and `C` need to be laid out so that we can find the `A` partm but the distance is not known (depends on the runtime of the object)
-  - _Solution:_ location of the base object stored in vtable
-    - Also note the diagram doesn't simultaneously look like `A`, `B`, `C`, `D`, but slices of it do
-    - Therefore pointer assignment among `A`, `B`, `C`, `D` pointers may change the address stored in the pointer
-    ```C++
-    D *d = ___;
-    A *a = d;   // Changes the address
-    ```
-    - `static_cast`, `const_cast`, `dynamic_cast`, under multiple inheritance will also adjust the value of the pointer (`reinterpret_cast` will not)
+> **2018-11-13**
+
+- _Problem:_ How will a class like `D` be laid out in memory (implementation specific)
+
+  - Consider:
+
+  ```C++
+  +----------+    <-- Should look like an A*, B*, C*, D*
+  |   vptr   |
+  +----------+
+  | A fields |
+  +----------+
+  | B fields |
+  +----------+
+  | C fields |
+  +----------+
+  | D fields |
+  +----------+
+  ```
+
+- What does `g++` do?
+
+  ```C++
+  +----------+
+  |   vptr   |
+  +----------+
+  | B fields |
+  +----------+
+  |   vptr   |
+  +----------+
+  | C fields |
+  +----------+
+  |   vptr   |
+  +----------+
+  | D fields |
+  +----------+
+  |   vptr   |
+  +----------+
+  | A fields |
+  +----------+
+  ```
+
+- `B` and `C` need to be laid out so that we can find the `A` partm but the distance is not known (depends on the runtime of the object)
+- _Solution:_ location of the base object stored in vtable
+
+  - Also note the diagram doesn't simultaneously look like `A`, `B`, `C`, `D`, but slices of it do
+  - Therefore pointer assignment among `A`, `B`, `C`, `D` pointers may change the address stored in the pointer
+
+  ```C++
+  D *d = ___;
+  A *a = d;   // Changes the address
+  ```
+
+  - `static_cast`, `const_cast`, `dynamic_cast`, under multiple inheritance will also adjust the value of the pointer (`reinterpret_cast` will not)
 
 - **Dependency Inversion Principle**
+
   - High level modules should not depend on low-level modules. Both should depend on abstractions
   - Abstract classes should never depend on concrete classes
   - Traditional top-down design
+
     - High level modules _uses_ low level module
     - Ex. `Word count` _uses_ `keyboard reader`
     - What if I want to use a file reader?
     - Changes to details affect the higher level word count module
     - Dependency inversion
-      <pre>
+
+    ```C
       +-------------------+   +--------------------------------+
-      | High Level Module |-->|      <em>Low Level Abstraction</em>     |
-    * ------------------+ +--------------------------------+
-      ^
-      |
-      +-------------------+
-      | Low Level Modules |
-      +-------------------+
-      +------------------+ +--------------------+
-      | WordCount |-------->| <em>Input Interface</em> |
-      +------------------+ +--------------------+
-      ^
-      |
-      +------+------+
-      | |
-      +------------+ +----------+
-      | Keyboard | | File |
-      | Reader | | Reader |
-      +------------+ +----------+
-      </pre>
+      | High Level Module |-->|      Low Level Abstraction     |
+      +-------------------+   +--------------------------------+
+                                               ^
+                                               |
+                                     +-------------------+
+                                     | Low Level Modules |
+                                     +-------------------+
+
+      +-----------+   uses   +-----------------+
+      | WordCount |--------->| Input Interface |
+      +-----------+          +-----------------+
+                                     ^
+                                     |
+                              +------+------+
+                              |             |
+                       +------------+  +----------+
+                       |  Keyboard  |  |   File   |
+                       |   Reader   |  |  Reader  |
+                       +------------+  +----------+
+    ```
+
     - Ex.
+
+    ```C
+    +-------+       +-----------+
+    | Timer | ◇--> |    Bell    |
+    +-------+       +-----------+
+                    |+ notify() |
+                    +-----------+
+    ```
+
+    - When the timer hits some specified time, it rings the `Bell` (calls `Bell:notify`, which rings the bell)
+    - What if we want to trigger other events? Maybe more than one:
+
+      ```C
+      +-------+ *     +-----------+
+      | Timer | ◇--> | Responder  |
+      +-------+       +-----------+
+                      |+ notify() |
+                      +-----------+
+                            ^
+                            |
+                     +------+------+
+                     |             |
+               +-----------+  +-----------+
+               |   Bell    |  |  Lights   |
+               +-----------+  +-----------+
+               |+ notify() |  |+ notify() |
+               +-----------+  +-----------+
       ```
-      +-------+    +-----------+
-      | Timer |◇-->| Bell      |
-      +-------+    +-----------+
-                   |+ notify() |
-                   +-----------+
+
+    - Maybe we want a dynamic set of responders
+
+      ```C
+      +-----------------------+    0..*     +-----------+
+      | Timer                 |◇---------> |  Responder |
+      +-----------------------+             +-----------+
+      |+ register(Responder)  |<---------◇ |+ notify()  |
+      |+ unregister(Responder)|             +-----------+
+      +-----------------------+                   ^
+                                                  |
+                                          +-------+-------+
+                                          |               |
+                                    +-----------+    +-----------+
+                                    | Bell      |    | Lights    |
+                                    +-----------+    +-----------+
+                                    |+ notify() |    |+ notify() |
+                                    +-----------+    +-----------+
       ```
-      - When the timer hits some specified time, it rings the `Bell` (calls `Bell:notify`, which rings the bell)
-      - What if we want to trigger other events? Maybe more than one:
-        <pre>
-        +-------+  * +-----------+
-        | Timer |◇-->| <em>Responder</em> |
-        +-------+    +-----------+
-                     |+ notify() |
-                     +-----------+
-                           ^
-                           |
-                    +------+-------+
-                    |              |
-              +-----------+   +-----------+     
-              | Bell      |   | Lights    |     
-              +-----------+   +-----------+     
-              |+ notify() |   |+ notify() |     
-              +-----------+   +-----------+
-        </pre>
-      - Maybe we want a dynamic set of responders
-        <pre>
-        +-----------------------+        *
-        | Timer                 |◇--------->+-----------+
-        +-----------------------+           | <em>Responder</em> |
-        |+ register(Responder)  |&lt;---------◇+-----------+
-        |+ unregister(Resonder) |           |+ notify() |
-        +-----------------------+           +-----------+
-                                                   ^    
-                                                   |      
-                                            +------+-------+
-                                            |              |
-                                      +-----------+   +-----------+
-                                      | Bell      |   | Lights    |
-                                      +-----------+   +-----------+
-                                      |+ notify() |   |+ notify() |
-                                      +-----------+   +-----------+
-        </pre>
-      - Now _`Responder`_ is depending on the concrete `Timer` class: apply Dependency Inversion again
-        <pre>
-        +------------------------+      +-----------------+ 
-        | <em>Source</em>                 |⬦---->| <em>Responder</em>       |
-        +------------------------+      +-----------------+ 
-        |+ register(Responder)   |      |+ notify()       |
-        |+ unregister(Responder) |      +-----------------+
-        +------------------------+               ^
-                ^                     +----------+
-                |                     |          |
-            +-------+             +------+     +-------+
-            | Timer |&lt;-----------⬦| Bell |     | Light |
-            +-------+             +------+     +-------+
-                ^                                   ⬦
-                |                                   |
-                +-----------------------------------+
-        </pre>
-        - Could dependency invert this again if you wanted
-        - **General Solution:** known as the Observer Pattern
-          <pre>
-          +-----------------+             +-----------------+ 
-          | <em>Subject</em>         |⬦----------->| <em>Observer</em>        |
-          +-----------------+             +-----------------+ 
-          |+ notifyObservers|             |+ notify()       |
-          |+ attatch(Obs)   |             +-----------------+ 
-          |+ detatch(Obs)   |                      ^
-          +----------------+                       |
-                  ^                                |
-                  |                                |
-          +-----------------+             +-------------------+
-          | ConcreteSubject |&lt;-----------⬦| Concrete Observer |
-          +-----------------+             +-------------------+
-          |+ getState()     |             |+ notify()         |
-          +-----------------+             +-------------------+
-          </pre>
-        - Sequence of calls:
-          1. `Subject`'s state changes
-          2. `Subject::notifyObservers` (either by the `Subject` itself OR by some external controller)
-             - Calls each `Observer`'s `notify`
-          3. Each `Observer` calls `concreteSubject::getState` to query the state + react accordingly
+
+    - Now _`Responder`_ is depending on the concrete `Timer` class: apply Dependency Inversion again
+
+      ```C
+      +------------------------+        +-----------------+
+      |        Source          |⬦----> |    Responder     |
+      +------------------------+        +-----------------+
+      |+ register(Responder)   |        |+    notify()    |
+      |+ unregister(Responder) |        +-----------------+
+      +------------------------+                  ^
+              ^                                   |
+              |                           +----------------+
+              |                           |                |
+       +------------+                 +-----------+    +-----------+
+       |   Timer    | <------------⬦ |    Bell    | ⬦ |   Lights  |
+       +------------+                 +-----------+  | +-----------+
+       |+ getTime() | <----+          |+ notify() |  | |+ notify() |
+       +------------+      |          +-----------+  | +-----------+
+                           |                         |
+                           +-------------------------+
+      ```
+
+      - Could dependency invert this again if you wanted
+      - **General Solution:** known as the Observer Pattern
+
+        ```C
+        +-----------------+              +-----------------+
+        |     Subject     |⬦----------->|     Observer     |
+        +-----------------+              +-----------------+
+        |+ notifyObservers|              |+    notify()    |
+        |+  attach(Obs)   |              +-----------------+
+        |+  detach(Obs)   |                      ^
+        +-----------------+                      |
+                ^                                |
+                |                                |
+        +-----------------+              +-------------------+
+        | ConcreteSubject |<-----------⬦|  Concrete Observer |
+        +-----------------+              +-------------------+
+        |+   getState()   |              |+     notify()     |
+        +-----------------+              +-------------------+
+        ```
+
+      - Sequence of calls:
+        1. `Subject`'s state changes
+        2. `Subject::notifyObservers` (either by the `Subject` itself OR by some external controller)
+           - Calls each `Observer`'s `notify`
+        3. Each `Observer` calls `concreteSubject::getState` to query the state + react accordingly
 
 ## Some More Design Patterns
 
@@ -773,29 +798,29 @@ When you don't know exactly what kind of object you want, and your preferences m
 
 Ex.
 
-<pre>
+```C
                 +-------+
-                | <em>Enemy</em> |
+                | Enemy |
                 +-------+
                     ^
                     |
-         +----------+------------+
-         |                       |
-     +--------+             +--------+
-     | Turtle |             | Bullet |
-     +--------+             +--------+
+         +----------+----------+
+         |                     |
+     +--------+           +--------+
+     | Turtle |           | Bullet |
+     +--------+           +--------+
 
                 +-------+
-                | <em>Level</em> |
+                | Level |
                 +-------+
                     ^
                     |
-         +----------+------------+
-         |                       |
-      +------+               +------+
-      | Easy |               | Hard |
-      +------+               +------+    
-</pre>
+         +----------+----------+
+         |                     |
+      +------+             +------+
+      | Easy |             | Hard |
+      +------+             +------+
+```
 
 - Randomly generated
 - More turtles in easy levels
@@ -837,28 +862,30 @@ Add/remove functionality to/from objects at runtime
 
 Ex. add menus/scrollbars to windows - either or both without a combinatorial explosion of subclasses
 
-<pre>
-                      +-----------+
-                      | <em>Component</em> |<------------+
-                      +-----------+             |
-                            ^                   |
-                            |                   |
+```C
+                    +-------------+
+                    |  Component  |<------------+
+                    +-------------+             |
+                    |+  operation |             |
+                    +-------------+             |
+                           ^                    |
+                           |                    |
           +----------------------------+        |
           |                            |        |
-          | // Plain window            |        |
+          | (Plain window)             |        |
     +--------------------+       +-----------+  |
-    | Concrete Component |       | <em>Decorator</em> |◇-+
+    | Concrete Component |       | Decorator |◇-+
     +--------------------+       +-----------+
-    |+ operation         |             ^
+    |+     operation     |             ^
     +--------------------+             |
                                        +------------------------------------+
                                        |                                    |
                             +----------------------+            +----------------------+
-// (Window w/ scrollbar)    | Concrete Decarator A |            | Concrete Decarator B | // Window w/ menu
+     (Window w/ scrollbar)  | Concrete Decorator A |            | Concrete Decorator B |  (Window w/ menu)
                             +----------------------+            +----------------------+
-                            | operation            |            | operation            |
+                            |+      operation      |            |+      operation      |
                             +----------------------+            +----------------------+
-</pre>
+```
 
 Every `Decorator` IS a component AND HAS a `Component`
 
@@ -868,16 +895,43 @@ Every `Decorator` IS a component AND HAS a `Component`
 Ex.
 
 ```C++
-WindowInterface *w = new WindowWithMenu{
-                            new WindowWithScollBar{
-                                new Window{}}};
+WindowInterface *w =
+    new WindowWithMenu {
+        new WindowWithScrollBar {
+            new Window {}
+        }
+    };
 ```
 
-### Vistor Pattern
+### Visitor Pattern
 
 For implementing _double dispatch_
 
 - Method chosen based on the runtime types of 2 objects, not just one
+
+```C
+                +-------+
+                | Enemy |
+                +-------+
+                    ^
+                    |
+         +----------+----------+
+         |                     |
+     +--------+           +--------+
+     | Turtle |           | Bullet |
+     +--------+           +--------+
+
+                +--------+
+                | Weapon |
+                +--------+
+                    ^
+                    |
+         +----------+----------+
+         |                     |
+     +-------+             +------+
+     | Stick |             | Rock |
+     +-------+             +------+
+```
 
 ```C++
 class Enemy {
@@ -887,12 +941,12 @@ class Enemy {
 
 class Turtle: public Enemy {
     public:
-    void beStruckBy(Weapon &w) override {w.strike(*this);}
+    void beStruckBy(Weapon &w) override { w.strike(*this); }
 };
 
 class Bullet: public Enemy {
     public:
-    void beStruckBy(Weapon &w) override {w.strike(*this);}
+    void beStruckBy(Weapon &w) override { w.strike(*this); }
 };
 
 class Weapon {
@@ -935,7 +989,7 @@ class Book {
     ...
     public:
     ...
-    virtual void accept(BookVisitor &v) {v.visit(*this);}
+    virtual void accept(BookVisitor &v) { v.visit(*this); }
 };
 
 class Text: public Book {
