@@ -2,7 +2,7 @@
 
 # Problem 23 - Shared Ownership
 
-**2017-11-16**
+> **2018-11-20**
 
 Is C++ hard? (No, if you're a client programmer)
 
@@ -38,8 +38,9 @@ template<typename T> class unique_ptr {
         T *p;
         ...
     public:
-        template<typename U> unique_ptr(unique_ptr<U> &&q): p{q.p} {
-                q.p = nullptr;
+        template<typename U> unique_ptr(unique_ptr<U> &&q)
+        : p{q.p} {
+            q.p = nullptr;
         }
 
         template<typename U> unique_ptr &operator=(unique_ptr<U> &&q) {
@@ -50,6 +51,7 @@ template<typename T> class unique_ptr {
 ```
 
 Works for any `unique_ptr` whose pointer is assignment compatible with `this->p`
+
 Ex. Subtypes of `T`, but not supertypes of `T`
 
 "But I want two smart pointers pointing at the same object!"
@@ -61,19 +63,19 @@ When would you want true shared ownership?
 
 Recall in Racket:
 
-```racket
+```scheme
 (define l1 (cons 1 (cons 2 (cons 3 empty))))
 (define l2 (cons 4 (rest l1)))
 ```
 
-```
-   +---+---+    +---+---+   +---+---+
+```C
+   +---+        +---+       +---+---+
 l1 | 1 | ------>| 2 | ----->| 3 | \ |
-   +---+---+    +---+---+   +---+---+
+   +---+        +---+       +---+---+
                   ^
-   +---+---+      |
+   +---+          |
 l2 | 1 | ---------+
-   +---+---+
+   +---+
 ```
 
 Shared data structures are a nightmare in C. How can we ensure each node is freed exactly once?
@@ -109,13 +111,13 @@ Now deallocation is as easy as garbage collection
 
 Just watch: cycles
 
-```
-   +---+---+    +---+---+
-   | 1 | ------>| 2 | -----+
-   +---+---+    +---+---+  |
-     ^                     |
-     |                     |
-     +---------------------+
+```C
+   +---+         +---+
+   | 1 | ------> | 2 |
+   +---+         +---+
+     ^             |
+     |             |
+     +-------------+
 ```
 
 If you have cyclic data, you may have to physically break the cycle (or use `weak_ptrs`)
@@ -143,7 +145,7 @@ shared_ptr<T> dynamic_pointer_cast(const shared_ptr<U> &spu) {
 }
 ```
 
-Similarily `const_pointer_cast`, `static_pointer_cast`
+Similarly `const_pointer_cast`, `static_pointer_cast`
 
 ---
 

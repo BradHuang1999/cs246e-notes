@@ -2,7 +2,7 @@
 
 # Problem 25: I want an even faster vector
 
-**2017-11-21**
+> **2018-11-21**
 
 In the good old days of C, you could copy an array (even an array of structs!) very quickly by calling a function `memcpy` (similar to `strcpy`, but for arbitrary memory, not just strings).
 
@@ -156,7 +156,7 @@ template<typename T> class vector {
 ```
 
 - Overload the constructor with an unused "dummy" arg
-- Have the copy consturctor delegate to the overloaded constructor
+- Have the copy constructor delegate to the overloaded constructor
 - Copy constructor is in line, so no function call overhead
 - This works
 

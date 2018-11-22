@@ -958,11 +958,11 @@ class Weapon {
 class Stick: public Weapon {
     public:
     void strike(Turtle &t) override {
-        //strike turtle with stick
+        // strike turtle with stick
     }
 
     void strike(Bullet &b) override {
-        //strike bullet with stick
+        // strike bullet with stick
     }
 }
 ```
@@ -1020,13 +1020,13 @@ Could do this with a virtual method, or write a visitor.
 class Catalog: public BookVisitor {
     public:
     map<string, int> theCat;
-    void visit(Book &b) override {++theCat[b.getAuthor()];}
-    void visit(Text &t) override {++theCat[b.getTopic()];}
-    void visit(Comic &c) override {++theCat[c.getHero()];}
+    void visit(Book &b) override { ++theCat[b.getAuthor()]; }
+    void visit(Text &t) override { ++theCat[b.getTopic()]; }
+    void visit(Comic &c) override { ++theCat[c.getHero()]; }
 };
 ```
 
-### But it won't compile!
+**But it won't compile!**
 
 - Circular include dependency
 - _book.h_, _BookVisitor.h_ include each other.
@@ -1058,17 +1058,17 @@ class E {
 };
 
 class F {
-    A f(A a) {a. someMethod();}
+    A f(A a) { a.someMethod(); }
 };
 
 class G {
-    t<A> x;
+    t<A> x;  // where t is a template
 };
 ```
 
-Which need includes? `B`,`D`,`F` need includes
+Which need includes? `B`, `D`, `F` need includes
 
-`C`,`E` forward declare ok.
+`C`, `E` forward declare ok.
 
 `G` - it depends on how the template t uses A.
 
@@ -1076,7 +1076,7 @@ Which need includes? `B`,`D`,`F` need includes
 
 Note: class `F` only needs an include because method `f`'s implementation is present.
 
-- a good resason to keep implementation in .cc
+- a good reason to keep implementation in .cc
 - where possible: forward declare in .h, include in .cc
 
 Also notice: `B` needs an include; `C` does not.
