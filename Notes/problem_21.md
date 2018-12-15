@@ -90,7 +90,7 @@ class Text: public Book {
 };
 ```
 
-Doesn't compile, `Text &operator=` must take a `Book` or it's no an override
+Doesn't compile, `Text &operator=` must take a `Book` or it's not an override
 
 ```C++
 class Text: public Book {

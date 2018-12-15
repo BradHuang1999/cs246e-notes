@@ -18,7 +18,7 @@ Ex. Fields of a struct
 
 ```C++
 class MediaPlayer {
-    template<typename T> T nowPlaying;   // Can't do this
+    template<typename T> T nowPlaying;  // Can't do this
 };
 ```
 
@@ -53,6 +53,7 @@ We'll use the standard CS 246 example.
 class Book {    // Superclass or Base class
         string title, author;
         int length;
+
     public:
         Book(string title, string author, int length):
             title{title},
@@ -60,14 +61,12 @@ class Book {    // Superclass or Base class
             length{length} {}
 
         bool isHeavy() const { return length > 100; }
-
         string getTitle() const { return title; }
-
         // etc.
 };
 ```
 
-```C++
+```C
 BOOK
 +--------+
 | Title  |
@@ -83,6 +82,7 @@ Some books are special though
 ```C++
 class Text: public Book {   // Subclass or Derived class
         string topic;   // No need to mention title, etc. because it comes from book
+
     public:
         Text(string title, string author, int length, string topic):
             Book{title, author, length},
@@ -109,6 +109,7 @@ TEXT
 ```C++
 class Comic: public Book {
         string hero;
+
     public:
         Comic(string title, string author, int length, string hero):
             Book{title, author, length},
@@ -144,8 +145,10 @@ All three classes have `title`, `author`, and `length`, methods `getTitle`, `get
 ```C++
 class Book {
         string title, author;
+
     protected:  // Accessible only to this class and its subclasses
         int length;
+
     public:
         ...
 };

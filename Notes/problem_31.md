@@ -2,9 +2,9 @@
 
 # Problem 31: I want total control over vectors and lists
 
-**2017-11-29**
+> **2018-11-28**
 
-Incoporating custom allocation into out containers.
+Incorporating custom allocation into out containers.
 
 **Issue:** may want different allocators for different kinds of vectors.
 

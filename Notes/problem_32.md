@@ -2,10 +2,10 @@
 
 # Problem 32: A fixed-size object allocator
 
-**2017-11-29**
+> **2018-11-29**
 
 A custom allocator can be fast.
-**Fixed size allocator:** all allocated "chunks" are the same size (ie. customaized code for one class) - no need to keep track of sizes
+**Fixed size allocator:** all allocated "chunks" are the same size (ie. customized code for one class) - no need to keep track of sizes
 
 (aside - many many traditional allocators store the size of the block before the pointer so that the allocator knows how much space is allocated to that pointer.)
 
@@ -22,7 +22,7 @@ When we have it: node in a linked list
 
 Each slot stores the index of the next slot in the list
 
-```
+```C
 FIRST
 +---+       +---+---+---+---+-----+----+
 | 0 |       | 1 | 2 | 3 | 4 | ... | -1 |
@@ -33,7 +33,7 @@ FIRST
 
 Allocation: from the front
 
-```
+```C
           Allocated
 +---+       +---+---+---+---+-----+----+
 | 1 |       |///| 2 | 3 | 4 | ... | -1 |
@@ -50,7 +50,7 @@ Allocation: from the front
 
 Deallocation:
 
-```
+```C
 Free item 0
 +---+       +---+---+---+---+-----+----+
 | 0 |       | 2 |///| 3 | 4 | ... | -1 |
@@ -147,12 +147,15 @@ int main() {
 
 - We used a union to hold both `int *T` - wastes less space
 - We could have used a struct `[ next | T ]`
+
   - Disadvantage: if you access a dangling `T` pointer, you can corrupt the linked list
+
   ```C++
   Student *s = new Student;
   delete s;
   s->setAssns(...);
   ```
+
 - Lesson: following a dangling pointer can be VERY dangerous
 - With a struct, `next` is before the `T` object, so you have to work hard to corrupt it.
 

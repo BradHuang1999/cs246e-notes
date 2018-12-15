@@ -136,7 +136,8 @@ Translated to:
 
 ```C++
 void f (T1 a, T2 b) {
-    class ??? {     // ??? - anonymous class we can't access the name
+    class ??? {
+        // ??? - anonymous class we can't access the name
             T1 a;
             T2 &b;
         public:
@@ -146,6 +147,21 @@ void f (T1 a, T2 b) {
             }
     }
 };
+```
+
+## Sidenote: Mutable in Class
+
+``` C++
+class A {
+    mutable int n;
+    int m;
+};
+
+int main() {
+    A const a = A();
+    a.n = 1;  // OK
+    a.m = 2;  // Error: can't modify const
+}
 ```
 
 Note that one can only use `auto` to store a lambda function.

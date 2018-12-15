@@ -2,7 +2,7 @@
 
 # Problem 33: I want a (tiny bit) smaller vector class
 
-**2017-11-30** Last class :'(
+> **2018-11-29** Last class :'(
 
 **Currently:** `vector`/`vector_base` have an allocator field. Standard allocator is stateless (has no fields)
 
@@ -20,30 +20,34 @@ To save this space, C++ provides the **empty base optimization (EBO)**.
 
 Under EBO, an empty base class does not have to occupy space in an object.
 
-So we can eliminate the space cost of an allocator by makig it a base class. At the same time, make `vector_base` a base class of a `vector`.
+So we can eliminate the space cost of an allocator by making it a base class. At the same time, make `vector_base` a base class of a `vector`.
 
 ```C++
 template <typename T, typename Alloc = allocator<T>>
-struct vector_base: private Alloc { // struct has default public inheritance
+struct vector_base: private Alloc {
+    // struct has default public inheritance
     size_t n, cap;
     T *v;
     using Alloc::allocate;
     using Alloc::deallocate;
     // etc.
+    // Because we don't know anything about Alloc, we need to bring these members into scope.
     vector_base(size_t n): n{0}, cap{n}, v{allocate(n)} {}
     ~vector_base() { deallocate(v); }
 };
 
 template <typename T, typename Alloc = allocator<T>>
-class vector: vector_base<T, Alloc> {   // private inheritance - no is-a relation
-        using vector_base<T, Alloc>::n;
-        using vector_base<T, Alloc>::cap;
-        using vector_base<T, Alloc>::v;
+class vector: vector_base<T, Alloc> {
+    // private inheritance - no is-a relation
+    using vector_base<T, Alloc>::n;
+    using vector_base<T, Alloc>::cap;
+    using vector_base<T, Alloc>::v;
 
-        using Alloc:allocate;   // or say this->allocate
-        using Alloc:deallocate; // this->deallocate
-    public:
-        ... Use n , cap, v instead of vb.n, vb.cap, vb.v
+    using Alloc:allocate;   // or say this->allocate
+    using Alloc:deallocate; // this->deallocate
+
+   public:
+    ... Use n , cap, v instead of vb.n, vb.cap, vb.v
 };
 ```
 
@@ -73,7 +77,15 @@ Remaining details - exercise
 
 ## Conclusions
 
-C++ is easy because it is hard
+How should we view what we learned this term?
+
+This is not a course in C++, nor polymorphism, or templates. These are only the tools for abstraction. The goal is to make programmers easy to get the job done, without exposing them to unnecessary implementation.
+
+C++ is good for this goal because it allows programmers to both think in Object-Oriented designs and create high-level abstractions, as well as manipulate the memory bit by bit.
+
+In this course, we pretended to be the writers of the standard library. We need to consider the hard problems, and if we do a good job, we will make our users' lives easier.
+
+C++ is easy because it is hard.
 
 ---
 

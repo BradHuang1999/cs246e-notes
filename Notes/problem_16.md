@@ -18,13 +18,13 @@ template<typename T> class vector {
             // ptrdiff_t incase result is negative (in general)
             increaseCap();
             iterator newPosn = begin() + offset;
-            new (end()) T(std::move(*(end() - 1)));
+            new (end()) T(std::move_if_no_except(*(end() - 1)));
             ++vb.n;
             // add new item to end
             for (iterator it = end() - 1; it != Posn; --it) {
-                *it = std::move(*(it - 1));
+                *it = std::move_if_no_except(*(it - 1));
             }
-            // shuffle items down using move_if_no_execpt
+            // shuffle items down using move_if_no_except
             *newPosn = x;
             // iterator to point of insertion;
             return newPosn;
@@ -55,7 +55,7 @@ and you insert at h
  it1      h  it2
 ```
 
-`it2` will not point at a different item.
+`it2` will now point at a different item.
 
 **Convention:** after a call to insert or erase all iterators pointing after the point of insertion/erasure are considered invalid and should not be used.
 

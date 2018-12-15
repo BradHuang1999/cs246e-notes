@@ -11,13 +11,13 @@ For simplicity, let's assume the old book hierarchy
   - `Text`
   - `Comic`
 
-- **C-style Casting**
+**C-style Casting**
 
-  - `(type) expr`
-  - Forces `expr` to be treated as type `type`
-  - Ex. `int addr = ...; int* p = (int*) addr;`
-  - Very easy to be a source of error
-  - Very difficult to search for
+- `(type) expr`
+- Forces `expr` to be treated as type `type`
+- Ex. `int addr = ...; int* p = (int*) addr;`
+- Very easy to be a source of error
+- Very difficult to search for
 
 The `C++` casting operators - _4 operators_
 
@@ -82,6 +82,7 @@ The `C++` casting operators - _4 operators_
     }
     ```
     - **Not good style**, what happens when you create a new `Book` type?
+  
   - Dynamic reference casting
     ```C++
     Book *pb = ...;
@@ -89,6 +90,7 @@ The `C++` casting operators - _4 operators_
     if (*pb is a Text) // ok
     else // raise std::bad_cast
     ```
+
   - **Note:** dynamic casting works by accessing an objects **Run-Time Type Information (RTTI)**, this is stored in the vtable for the class
     - This means we can only `dynamic_cast` on objects that have at least one virtual method
   - Dynamic reference casting offers a possible solution to take polymorphic assignment problem:

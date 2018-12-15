@@ -1,7 +1,8 @@
 [<< Resolving Method Overrides at Compile-Time](./problem_28.md) | [**Home**](../README.md) | [>> Logging](./problem_29.md)
 
 # Problem 28: Polymorphic Cloning
-**2017-11-23**
+
+> **2018-11-27**
 
 ```C++
 Book *pb = ...;
@@ -50,4 +51,5 @@ class Comic: public Book_cloneable<Comic> { ... };
 ```
 
 ---
+
 [<< Resolving Method Overrides at Compile-Time](./problem_28.md) | [**Home**](../README.md) | [>> Logging](./problem_29.md)

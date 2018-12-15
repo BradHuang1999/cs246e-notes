@@ -141,7 +141,7 @@ If you need true shared ownership - we'll see later.
 
     ```C++
     class ChessBoard {
-        std::cout << "Your move"
+        std::cout << "Your move";
     };
     ```
 
@@ -241,140 +241,140 @@ If you need true shared ownership - we'll see later.
 
     1. **Contravariance Problem**
 
-    - Arises anytime you have a binary operator (ie. a method with an "other" parameter) of the same type as `*this`
+       - Arises anytime you have a binary operator (ie. a method with an "other" parameter) of the same type as `*this`
 
-      ```C++
-      class Shape {
-          public:
-              virtual bool operator==(const Shape &other) const;
-              ...
-      };
-      class Circle: public Shape {
-          public:
-              bool operator==(const Circle &other) const override; // (*)
-      }
-      ```
+         ```C++
+         class Shape {
+             public:
+                 virtual bool operator==(const Shape &other) const;
+                 ...
+         };
+         class Circle: public Shape {
+             public:
+                 bool operator==(const Circle &other) const override; // (*)
+         }
+         ```
 
-    - (\*) violates the Liskov Substitution
+       - (\*) violates the Liskov Substitution
 
-      - A `Circle` _is_ a `Shape`
-      - A `Shape` can be compared with _any_ other `Shape`
-      - Therefore a `Circle` can be compared with _any_ other `Shape`
-      - C++ will flag this problem with a compiler error
-      - **FIX:**
+         - A `Circle` _is_ a `Shape`
+         - A `Shape` can be compared with _any_ other `Shape`
+         - Therefore a `Circle` can be compared with _any_ other `Shape`
+         - C++ will flag this problem with a compiler error
+         - **FIX:**
+
+           ```C++
+           bool Circle::operator==(const Shape &other) const {
+               if (typeid(other) != typeid(Circle)) return false;
+               const Circle &other = static_cast<const Circle &>(other);
+               // Compare fields of other with fields of *this;
+           }
+           ```
+
+         - `dynamic_cast` vs `typeid`
+           - `dynamic_cast<Circle &>(other);`: is `other` a `Circle` or a subclass of `Circle`
+           - `typeid(other) == typeid(Circle)`: is `other` precisely a `Circle`?
+           - `typeid` returns an object of type `typeinfo`
+
+    1. **Is a square a rectangle?**
+
+       - A square has all the properties of a rectangle
+
+            ```C++
+            class Rectangle {
+                private:
+                    int length, width;
+                public:
+                    Rectangle(...);
+                    int getLength() const;
+                    virtual void setLength(int);
+                    int getWidth() const;
+                    virtual void setWidth(int);
+                    int area() const { return length * width; }
+            };
+            ```
+
+            ```C++
+            class Square: public Rectangle {
+                public:
+                    Square(int side): Rectangle(side, side) {}
+                    void setLength(int l) override {
+                        Rectangle::setLength(l);
+                        Rectangle::setWidth(l);
+                        // length == width in a square
+                    }
+                    void setWidth(int w) { ... } // Similar
+            };
+            ```
+
+            ```C++
+            int f(Rectangle &r) {
+                r.setLength(10);
+                r.setWidth(20);
+                return r.area();  // Expect 200
+            }
+            ```
+
+            ```C++
+            Square s{1};
+            f(s);   // 400
+            ```
+
+       - `Rectangle`s have the property that their length and width can vary independently; `Square`s do not. So this violates LSP
+       - On the other hand, an immutable `Square` could substitute for an immutable `Rectangle`
+       - What can be done:
+
+         ```C
+                                           +-------+
+                                           | Shape |
+                                           +-------+
+                                               ^
+                                               |
+                                               |
+                             +-----------------+
+                             |
+               +--------------------------+
+               | RightAngledQuadrilateral |        ...
+               +--------------------------+
+                            ^
+                            |
+                 +----------+----------+
+                 |                     |
+            +-----------+         +--------+
+            | Rectangle |         | Square |
+            +-----------+         +--------+
+         ```
+
+    1. Constraining what subclasses can do:
 
         ```C++
-        bool Circle::operator==(const Shape &other) const {
-            if (typeid(other) != typeid(Circle)) return false;
-            const Circle &other = static_cast<const Circle &>(other);
-            // Compare fields of other with fields of *this;
-        }
+        class Turtle {
+            public:
+                virtual void draw() = 0;
+        };
         ```
 
-      - `dynamic_cast` vs `typeid`
-        - `dynamic_cast<Circle &>(other);`: is `other` a `Circle` or a subclass of `Circle`
-        - `typeid(other) == typeid(Circle)`: is `other` precisely a `Circle`?
-        - `typeid` returns an object of type `typeinfo`
+        ```C++
+        class RedTurtle: public Turtle {
+            public:
+                void draw() override {
+                    drawHead();
+                    drawRedShell();
+                    drawFeet();
+                }
+        };
+        ```
 
-    1. Is a square a rectangle?
-
-    - A square has all the properties of a rectangle
-
-    ```C++
-    class Rectangle {
-        private:
-            int length, width;
-        public:
-            Rectangle(...);
-            int getLength() const;
-            virtual void setLength(int);
-            int getWidth() const;
-            virtual void setWidth(int);
-            int area() const { return length * width; }
-    };
-    ```
-
-    ```C++
-    class Square: public Rectangle {
-        public:
-            Square(int side): Rectangle(side, side) {}
-            void setLength(int l) override {
-                Rectangle::setLength(l);
-                Rectangle::setWidth(l);
-                // length == width in a square
-            }
-            void setWidth(int w) { ... } // Similar
-    };
-    ```
-
-    ```C++
-    int f(Rectangle &r) {
-        r.setLength(10);
-        r.setWidth(20);
-        return r.area();  // Expect 200
-    }
-    ```
-
-    ```C++
-    Square s{1};
-    f(s);   // 400
-    ```
-
-    - `Rectangle`s have the property that their length and width can vary independently; `Square`s do not. So this violates LSP
-    - On the other hand, an immutable `Square` could substitute for an immutable `Rectangle`
-    - What can be done:
-
-      ```C
-                                        +-------+
-                                        | Shape |
-                                        +-------+
-                                            ^
-                                            |
-                                            |
-                          +-----------------+
-                          |
-            +--------------------------+
-            | RightAngledQuadrilateral |        ...
-            +--------------------------+
-                         ^
-                         |
-              +----------+----------+
-              |                     |
-         +-----------+         +--------+
-         | Rectangle |         | Square |
-         +-----------+         +--------+
-      ```
-
-    - Constraining what subclasses can do:
-
-      ```C++
-      class Turtle {
-          public:
-              virtual void draw() = 0;
-      };
-      ```
-
-      ```C++
-      class RedTurtle: public Turtle {
-          public:
-              void draw() override {
-                  drawHead();
-                  drawRedShell();
-                  drawFeet();
-              }
-      };
-      ```
-
-      ```C++
-      class GreenTurtle: public Turtle {
-          public:
-              void draw() override {
-                  drawHead();
-                  drawGreenShell();
-                  drawFeet();
-              }
-      };
-      ```
+        ```C++
+        class GreenTurtle: public Turtle {
+            public:
+                void draw() override {
+                    drawHead();
+                    drawGreenShell();
+                    drawFeet();
+                }
+        };
+        ```
 
     - Code duplication!
     - How can we ensure that overrides of `draw()` will always do these things?
@@ -506,155 +506,156 @@ If you need true shared ownership - we'll see later.
     }
     ```
 
-    - Example of the **Adapter Pattern**
+  - Example of the **Adapter Pattern**
 
-  - General use of the Adapter Pattern: when a class provides an interface different from the one you need
-  - Ex.
+    - General use of the Adapter Pattern: when a class provides an interface different from the one you need
+    - Ex.
 
-    ```C
-    +------------------+        +----------------+
-    | Needed Interface |        | Provided Class |
-    +------------------+        +----------------+
-    |+ g()             |        |+ f()           |
-    +------------------+        +----------------+
-             ^                          ^
-             |                          |   // This inheritance could be private,
-             +-------------+------------+   // depends on whether you want the adapter
-                           |                // to still support the old interface
-                       +---------+
-                       | Adapter |
-                       +---------+    +----------+
-                       |+ g() ---|----| { f(); } |  // Show's implementation
-                       +---------+    +----------+
-    ```
+      ```C
+      +------------------+        +----------------+
+      | Needed Interface |        | Provided Class |
+      +------------------+        +----------------+
+      |+ g()             |        |+ f()           |
+      +------------------+        +----------------+
+               ^                          ^
+               |                          |   // This inheritance could be private,
+               +-------------+------------+   // depends on whether you want the adapter
+                             |                // to still support the old interface
+                    +-----------------+
+                    |     Adapter     |
+                    +-----------------+
+                    |+  g() { f(); }  |  // Shows implementation
+                    +-----------------+
+      ```
 
-  - _Detour:_ Issues with multiple inheritance
+    - _Detour:_ Issues with multiple inheritance
 
-    ```C
-    +------+        +------+
-    |  A1  |        |  A2  |
-    +------+        +------+
-    |+ a() |        |+ a() |
-    +------+        +------+
-        ^               ^
-        |               |
-        +-------+-------+
-                |
-             +-----+
-             |  B  |    // Has 2 a() methods
-             +-----+
-    ```
+      ```C
+      +------+        +------+
+      |  A1  |        |  A2  |
+      +------+        +------+
+      |+ a() |        |+ a() |
+      +------+        +------+
+          ^               ^
+          |               |
+          +-------+-------+
+                  |
+               +-----+
+               |  B  |    // Has 2 a() methods
+               +-----+
+      ```
 
-    ```C
-             +-----+
-             |  A  |
-             +-----+
-             |+ a()|
-             +-----+
-                ^
-                |
-       +--------+--------+
-       |                 |
-    +-----+           +-----+
-    |  B  |           |  C  |
-    +-----+           +-----+
-       |                 |
-       +--------+--------+
-                |
-             +-----+
-             |  D  |    // Has two a() methods, and they're different
-             +-----+
-    ```
+      ```C
+               +-----+
+               |  A  |
+               +-----+
+               |+ a()|
+               +-----+
+                  ^
+                  |
+         +--------+--------+
+         |                 |
+      +-----+           +-----+
+      |  B  |           |  C  |
+      +-----+           +-----+
+         |                 |
+         +--------+--------+
+                  |
+               +-----+
+               |  D  |    // Has two a() methods, and they're different
+               +-----+
+      ```
+
+      ```C++
+      class D: public B, public C {
+          void f() { ... a() ... }  // Ambiguous, use B::a() or C::a()
+      };
+      D d;
+      d.a();  // Ambiguous, use d.B::a() or d.C::a()
+      ```
+
+    - OR maybe there should be only one `A` base, and therefore only one `a()`
+      ```C++
+      class B: virtual public A { ... };
+      class C: virtual public A { ... };
+      ```
+    - Now `d.a()` is no longer ambiguous
+    - Ex. iostream hierarchy
+
+      ```C
+                          ios_base
+                             |
+                             |
+                     .------ios-----.
+                    /                \
+                   /                  \
+                  /                    \
+                 /                      \
+             istream -------------.    ostream ---- ofstream
+            /       \              \    /    \
+           /         \              \  /      ostringstream
+          /           \            iostream
+         /             \             |    \
+        /               \            |     \
+       /                 \           |      \
+      ifstream  iostringstream   fstream  stringstream
+      ```
+
+  > **2018-11-13**
+
+  - _Problem:_ How will a class like `D` be laid out in memory (implementation specific)
+
+    - Consider:
 
     ```C++
-    class D: public B, public C {
-        void f() { ... a() ... }  // Ambiguous, use B::a() or C::a()
-    };
-    D d;
-    d.a();  // Ambiguous, use d.B::a() or d.C::a()
+    +----------+    <-- Should look like an A*, B*, C*, D*
+    |   vptr   |
+    +----------+
+    | A fields |
+    +----------+
+    | B fields |
+    +----------+
+    | C fields |
+    +----------+
+    | D fields |
+    +----------+
     ```
 
-  - OR maybe there should be only one `A` base, and therefore only one `a()`
+  - What does `g++` do?
+
     ```C++
-    class B: virtual public A { ... };
-    class C: virtual public A { ... };
-    ```
-  - Now `d.a()` is no longer ambiguous
-  - Ex. iostream hierarchy
-
-    ```C
-                        ios_base
-                           |
-                           |
-                   .------ios-----.
-                  /                \
-                 /                  \
-                /                    \
-               /                      \
-           istream -------------.    ostream ---- ofstream
-          /       \              \    /    \
-         /         \              \  /      ostringstream
-        /           \            iostream
-       /             \             |    \
-      /               \            |     \
-     /                 \           |      \
-    ifstream  iostringstream   fstream  stringstream
+    +----------+
+    |   vptr   |
+    +----------+
+    | B fields |
+    +----------+
+    |   vptr   |
+    +----------+
+    | C fields |
+    +----------+
+    |   vptr   |
+    +----------+
+    | D fields |
+    +----------+
+    |   vptr   |
+    +----------+
+    | A fields |
+    +----------+
     ```
 
-> **2018-11-13**
+  - `B` and `C` need to be laid out so that we can find the `A` param but the distance is not known (depends on the runtime of the object)
 
-- _Problem:_ How will a class like `D` be laid out in memory (implementation specific)
+  - _Solution:_ location of the base object stored in vtable
 
-  - Consider:
+    - Also note the diagram doesn't simultaneously look like `A`, `B`, `C`, `D`, but slices of it do
+    - Therefore pointer assignment among `A`, `B`, `C`, `D` pointers may change the address stored in the pointer
 
-  ```C++
-  +----------+    <-- Should look like an A*, B*, C*, D*
-  |   vptr   |
-  +----------+
-  | A fields |
-  +----------+
-  | B fields |
-  +----------+
-  | C fields |
-  +----------+
-  | D fields |
-  +----------+
-  ```
+    ```C++
+    D *d = ___;
+    A *a = d;   // Changes the address
+    ```
 
-- What does `g++` do?
-
-  ```C++
-  +----------+
-  |   vptr   |
-  +----------+
-  | B fields |
-  +----------+
-  |   vptr   |
-  +----------+
-  | C fields |
-  +----------+
-  |   vptr   |
-  +----------+
-  | D fields |
-  +----------+
-  |   vptr   |
-  +----------+
-  | A fields |
-  +----------+
-  ```
-
-- `B` and `C` need to be laid out so that we can find the `A` partm but the distance is not known (depends on the runtime of the object)
-- _Solution:_ location of the base object stored in vtable
-
-  - Also note the diagram doesn't simultaneously look like `A`, `B`, `C`, `D`, but slices of it do
-  - Therefore pointer assignment among `A`, `B`, `C`, `D` pointers may change the address stored in the pointer
-
-  ```C++
-  D *d = ___;
-  A *a = d;   // Changes the address
-  ```
-
-  - `static_cast`, `const_cast`, `dynamic_cast`, under multiple inheritance will also adjust the value of the pointer (`reinterpret_cast` will not)
+    - `static_cast`, `const_cast`, `dynamic_cast`, under multiple inheritance will also adjust the value of the pointer (`reinterpret_cast` will not)
 
 - **Dependency Inversion Principle**
 
@@ -706,7 +707,7 @@ If you need true shared ownership - we'll see later.
 
       ```C
       +-------+ *     +-----------+
-      | Timer | ◇--> | Responder  |
+      | Timer | ◇--> | Responder |
       +-------+       +-----------+
                       |+ notify() |
                       +-----------+
